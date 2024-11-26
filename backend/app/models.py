@@ -35,7 +35,8 @@ class Livre(db.Model):
     date_sortie = db.Column(db.Date)
     date_ajout = db.Column(db.DateTime, default=datetime.utcnow)
     description = db.Column(db.Text)
-
+    image_url = db.Column(db.String(255))
+    
     # Relations
     exemplaires = db.relationship('Exemplaire', backref='livre')
     reservations = db.relationship('Reservation', backref='livre')

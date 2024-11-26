@@ -1,5 +1,6 @@
-import Button from "@/components/ui/Button"
+import {Button} from "@/components/ui/button"
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 
 interface Livre {
   id_livre: number;
@@ -12,6 +13,7 @@ interface Livre {
 }
 
 export default function Home() {
+  const router = useRouter()
   const [livres, setLivres] = useState<Livre[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -38,6 +40,10 @@ export default function Home() {
       })
       .finally(() => setLoading(false))
   }, [])
+
+  const handleViewDetails = (livreId: number) => {
+    router.push(`/livres/${livreId}`)
+  }
 
   if (loading) {
     return (
@@ -95,7 +101,11 @@ export default function Home() {
                 </p>
               )}
               <div className="mt-4 flex gap-2">
-                <Button variant="outline" size="sm">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleViewDetails(livre.id_livre)}
+                >
                   Détails
                 </Button>
                 <Button variant="outline" size="sm">
