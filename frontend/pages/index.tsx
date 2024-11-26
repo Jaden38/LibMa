@@ -104,7 +104,6 @@ export default function Home() {
       <div className="mt-6">
         <h2 className="text-2xl font-bold text-[#003366] mb-4 relative text-center">
           Catalogue des Livres
-          <span className="absolute left-1/2 -translate-x-1/2 bottom-0 w-16 h-1 bg-[#003366] rounded-md"></span>
         </h2>
         <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {livres.map((livre) => (
