@@ -1,16 +1,24 @@
-import React from "react"
+// components/ui/Input.tsx
+import React from "react";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+interface InputProps {
+  type: string;
+  placeholder: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
+}
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
+const Input: React.FC<InputProps> = ({ type, placeholder, value, onChange, className }) => {
   return (
     <input
-      ref={ref}
-      {...props}
-      className={`px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 ${className}`}
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      className={`px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
     />
-  )
-})
+  );
+};
 
-Input.displayName = "Input"
-export default Input
+export default Input;
