@@ -106,6 +106,19 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {/* Ajout de liens pour la page de login et register */}
+      <div className="mt-6">
+        <h2 className="text-xl font-semibold mb-2">Account</h2>
+        <div className="space-x-4">
+          <Link href="/login">
+            <Button>Login</Button>
+          </Link>
+          <Link href="/register">
+            <Button>Register</Button>
+          </Link>
+        </div>
+      </div>
     </main>
-  )
+  );
 }
