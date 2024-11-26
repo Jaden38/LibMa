@@ -1,6 +1,8 @@
 import Button from "@/components/ui/Button";
 import { useEffect, useState } from 'react';
 import Link from "next/link";
+import { useRouter } from 'next/router'
+
 
 interface Livre {
   id_livre: number;
@@ -13,9 +15,10 @@ interface Livre {
 }
 
 export default function Home() {
-  const [livres, setLivres] = useState<Livre[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter()
+  const [livres, setLivres] = useState<Livre[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setLoading(true);
@@ -39,6 +42,10 @@ export default function Home() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  const handleViewDetails = (livreId: number) => {
+    router.push(`/livres/${livreId}`)
+  }
 
   if (loading) {
     return (
@@ -125,12 +132,11 @@ export default function Home() {
               {livre.description && (
                 <p className="mt-3 text-sm text-gray-700 line-clamp-3">{livre.description}</p>
               )}
-
-              <div className="mt-4 flex gap-4">
+              <div className="mt-4 flex gap-2">
                 <Button 
                   variant="outline" 
-                  size="sm" 
-                  className="w-full md:w-auto border-[#4a6fa5] text-[#4a6fa5] hover:bg-[#d1e0f7] hover:border-[#3a5a87] hover:text-[#003366] transition-colors rounded-xl px-6 py-2 shadow-sm transform hover:scale-105">
+                  size="sm"
+                  onClick={() => handleViewDetails(livre.id_livre)}>
                   Détails
                 </Button>
                 

@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS Livres (
     categorie VARCHAR(100),
     date_sortie DATE,
     date_ajout TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    image_url VARCHAR(255),
     description TEXT
 );
 
