@@ -3,6 +3,7 @@
 node_modules
 package.json
 .next
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
