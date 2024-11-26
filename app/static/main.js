@@ -1,8 +1,8 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import { Button } from "./components/ui/button";
+const React = require("react");
+const ReactDOM = require("react-dom");
+const { Button } = require("./components/ui/button");
 
 ReactDOM.render(
-    <Button>Click Me</Button>,
+    React.createElement(Button, null, "Click Me"),
     document.getElementById("app")
 );
