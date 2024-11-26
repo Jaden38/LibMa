@@ -22,6 +22,7 @@ app.config.from_object('config')
 # Create database connection object
 db = SQLAlchemy(app)
 
+
 @app.cli.command()
 def init_db():
     """Initialize the database using schema.sql and populate.sql"""
@@ -30,9 +31,10 @@ def init_db():
         conn = mysql.connector.connect(
             host=os.getenv('MYSQL_HOST'),
             user=os.getenv('MYSQL_USER'),
-            password=os.getenv('MYSQL_PASSWORD')
+            password=os.getenv('MYSQL_PASSWORD'),
+            port=int(os.getenv('MYSQL_PORT', 3306))
         )
-        
+
         if conn.is_connected():
             cursor = conn.cursor()
             
