@@ -1,14 +1,13 @@
-<!doctype html>
-<title>{% block title %}{% endblock %} - Flaskr</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<nav>
-  <h1>Flaskr</h1>
-  <ul>
-
-  </ul>
-</nav>
-<section class="content">
-  <header>
-      <h2>Titre 2</h2>
-  </header>
-</section>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask + ShadCN</title>
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div id="app"></div>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>

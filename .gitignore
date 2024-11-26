@@ -1,5 +1,9 @@
 .idea 
 .vscode
+node_modules
+package-lock.json
+.next
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
