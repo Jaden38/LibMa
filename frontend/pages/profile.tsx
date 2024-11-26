@@ -1,7 +1,7 @@
 // pages/profile.tsx
 import React, { useState } from "react";
 import Input from "@/components/ui/Input";
-import Button from "@/components/ui/Button";
+import {Button} from "@/components/ui/Button";
 
 const Profile: React.FC = () => {
   const [email, setEmail] = useState("user@example.com"); // Exemple d'email initial
