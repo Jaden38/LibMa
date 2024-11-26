@@ -1,21 +1,14 @@
-from flask_sqlalchemy import SQLAlchemy
-import logging as lg
+from app import db
 
-from .views import app
-
-# Create database connection object
-db = SQLAlchemy(app)
-
-class Entity(db.Model):
+# Example model - update this based on your schema.sql
+class Book(db.Model):
+    __tablename__ = 'books'
+    __table_args__ = {'extend_existing': True}
+    
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)
+    author = db.Column(db.String(255), nullable=False)
+    isbn = db.Column(db.String(13), unique=True)
 
-    def __init__(self):
-        ...
-
-def init_db():
-    #db.drop_all()
-    #db.create_all()
-    #db.session.add(Entity())
-    #db.session.commit()
-    #lg.warning('Database initialized!')
-    ...
+    def __repr__(self):
+        return f'<Book {self.title}>'
