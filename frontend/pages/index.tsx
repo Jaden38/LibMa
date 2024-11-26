@@ -79,7 +79,10 @@ export default function Home() {
         </Link>
       </div>
 
-      <h1 className="text-3xl font-bold text-center mb-6">Gestion de la Bibliothèque</h1>
+      <h1 className="text-4xl font-bold text-[#003366] text-center mb-6 relative shadow-sm">
+        Gestion de la Bibliothèque
+        <span className="absolute inset-0 border-b-4 border-[#003366]"></span>
+      </h1>
 
       <div className="text-center mb-6">
         <Link href="/add-book">
