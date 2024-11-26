@@ -26,7 +26,7 @@ const Register: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold mb-6 text-center">Register</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center text-[#003366]">Register</h1>
       <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
         <div>
           <Input
@@ -34,7 +34,7 @@ const Register: React.FC = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full"
+            className="w-full border border-[#4a6fa5] rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#003366]"
             aria-label="Email address"
           />
         </div>
@@ -44,7 +44,7 @@ const Register: React.FC = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full"
+            className="w-full border border-[#4a6fa5] rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#003366]"
             aria-label="Password"
           />
         </div>
@@ -54,7 +54,7 @@ const Register: React.FC = () => {
             placeholder="Confirm Password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full"
+            className="w-full border border-[#4a6fa5] rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#003366]"
             aria-label="Confirm password"
           />
         </div>
@@ -62,7 +62,7 @@ const Register: React.FC = () => {
         <Button
           onClick={handleRegister}
           disabled={!email || !password || !confirmPassword}
-          className="w-full py-3 mt-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full py-3 mt-4 bg-[#003366] text-white rounded-xl hover:bg-[#002244] focus:outline-none focus:ring-2 focus:ring-[#002244]"
         >
           Register
         </Button>

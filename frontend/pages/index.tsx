@@ -62,13 +62,18 @@ export default function Home() {
     <main className="container mx-auto p-6 bg-white rounded-lg shadow-md">
       {/* Section de boutons en haut à droite */}
       <div className="absolute top-6 right-6 space-x-4 z-10">
+      <Link href="/profile">
+          <Button className="bg-[#003366] text-white hover:bg-[#002244] transition-colors rounded-xl px-6 py-2 shadow-lg transform hover:scale-105">
+            Profile
+          </Button>
+        </Link>
         <Link href="/login">
           <Button className="bg-[#003366] text-white hover:bg-[#002244] transition-colors rounded-xl px-6 py-2 shadow-lg transform hover:scale-105">
              Login
           </Button>
         </Link>
         <Link href="/register">
-          <Button className="bg-[#006400] text-white hover:bg-[#004d00] transition-colors rounded-xl px-6 py-2 shadow-lg transform hover:scale-105">
+          <Button className="bg-[#003366] text-white hover:bg-[#002244] transition-colors rounded-xl px-6 py-2 shadow-lg transform hover:scale-105">
              Register
           </Button>
         </Link>
@@ -118,21 +123,21 @@ export default function Home() {
                 <p className="mt-3 text-sm text-gray-700 line-clamp-3">{livre.description}</p>
               )}
 
-<div className="mt-4 flex gap-4">
-  <Button 
-    variant="outline" 
-    size="sm" 
-    className="w-full md:w-auto border-[#4a6fa5] text-[#4a6fa5] hover:bg-[#d1e0f7] hover:border-[#3a5a87] hover:text-[#003366] transition-colors rounded-xl px-6 py-2 shadow-sm transform hover:scale-105">
-    Détails
-  </Button>
-  
-  <Button 
-    variant="outline" 
-    size="sm" 
-    className="w-full md:w-auto border-[#3a5a87] text-[#3a5a87] hover:bg-[#b0c8e7] hover:border-[#2a4b70] hover:text-[#002244] transition-colors rounded-xl px-6 py-2 shadow-sm transform hover:scale-105">
-    Réserver
-  </Button>
-</div>
+              <div className="mt-4 flex gap-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full md:w-auto border-[#4a6fa5] text-[#4a6fa5] hover:bg-[#d1e0f7] hover:border-[#3a5a87] hover:text-[#003366] transition-colors rounded-xl px-6 py-2 shadow-sm transform hover:scale-105">
+                  Détails
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full md:w-auto border-[#3a5a87] text-[#3a5a87] hover:bg-[#b0c8e7] hover:border-[#2a4b70] hover:text-[#002244] transition-colors rounded-xl px-6 py-2 shadow-sm transform hover:scale-105">
+                  Réserver
+                </Button>
+              </div>
             </div>
           ))}
         </div>
