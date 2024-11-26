@@ -1,16 +1,19 @@
-from flask import Flask, render_template
+from flask import render_template, jsonify
+from app import app, db
+from app.models import Book
 
-app = Flask(__name__)
-# Config options - Make sure you created a 'config.py' file.
-app.config.from_object('config')
-# To get one variable, tape app.config['MY_VARIABLE']
 @app.route('/')
-def hello_world():  # put application's code here
+def hello_world():
     return 'Hello World!'
 
 @app.route('/base')
-def view_base():  # put application's code here
+def view_base():
     return render_template('base.html')
 
-if __name__ == '__main__':
-    app.run()
+@app.route('/test_db')
+def test_db():
+    try:
+        books = Book.query.all()
+        return jsonify([{'id': book.id, 'title': book.title} for book in books])
+    except Exception as e:
+        return f'Database error: {str(e)}'
