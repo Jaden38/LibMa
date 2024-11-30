@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ interface Emprunt {
   date_debut: string;
   date_fin: string;
   date_retour: string | null;
-  statut: 'en cours' | 'terminé' | 'en retard' | 'annulé';
+  statut: "en cours" | "terminé" | "en retard" | "annulé";
   utilisateur: {
     id: number;
     nom: string;
@@ -26,7 +26,7 @@ interface DialogEmpruntHistoriqueProps {
   onOpenChange: (open: boolean) => void;
   exemplaire: {
     code_unique: string;
-    statut: string;
+    statut: "disponible" | "emprunté" | "réservé" | "indisponible";
   } | null;
   emprunts: Emprunt[];
   loading: boolean;
@@ -37,27 +37,32 @@ export function DialogEmpruntHistorique({
   onOpenChange,
   exemplaire,
   emprunts,
-  loading
+  loading,
 }: DialogEmpruntHistoriqueProps) {
   if (!exemplaire) return null;
 
-  const getStatutStyle = (statut: Emprunt['statut']) => {
+  const getStatutStyle = (statut: string) => {
     const styles = {
-      'en cours': 'bg-blue-100 text-blue-800',
-      'terminé': 'bg-green-100 text-green-800',
-      'en retard': 'bg-red-100 text-red-800',
-      'annulé': 'bg-gray-100 text-gray-800'
+      disponible: "bg-green-200 text-green-800 border-green-400",
+      emprunté: "bg-yellow-200 text-yellow-800 border-yellow-400",
+      réservé: "bg-blue-200 text-blue-800 border-blue-400",
+      indisponible: "bg-gray-200 text-gray-800 border-gray-400",
     };
-    return styles[statut];
+    return styles[statut] || "bg-zinc-200 text-zinc-800 border-zinc-400";
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="max-w-2xl max-h-[80vh] bg-zinc-800 text-zinc-100 rounded-lg shadow-lg">
         <DialogHeader>
-          <DialogTitle className="flex justify-between items-center">
+          <DialogTitle className="flex justify-normal gap-2 items-center text-zinc-100">
             <span>Historique des emprunts - {exemplaire.code_unique}</span>
-            <Badge variant="secondary" className="ml-2">
+            <Badge
+              variant="secondary"
+              className={`px-2 py-1 rounded ${getStatutStyle(
+                exemplaire.statut
+              )}`}
+            >
               {exemplaire.statut}
             </Badge>
           </DialogTitle>
@@ -65,11 +70,11 @@ export function DialogEmpruntHistorique({
 
         <ScrollArea className="h-[500px] w-full pr-4">
           {loading ? (
-            <div className="flex items-center justify-center h-24">
+            <div className="flex items-center justify-center h-24 text-zinc-400">
               <p>Chargement de l'historique...</p>
             </div>
           ) : emprunts.length === 0 ? (
-            <div className="flex items-center justify-center h-24 text-gray-500">
+            <div className="flex items-center justify-center h-24 text-zinc-400">
               Aucun emprunt enregistré pour cet exemplaire
             </div>
           ) : (
@@ -77,20 +82,22 @@ export function DialogEmpruntHistorique({
               {emprunts.map((emprunt) => (
                 <div
                   key={emprunt.id_emprunt}
-                  className="border rounded-lg p-4 space-y-2"
+                  className="border border-zinc-600 bg-zinc-700 rounded-lg p-4 space-y-2"
                 >
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
-                      <p className="font-medium">
+                      <p className="font-medium text-zinc-100">
                         {emprunt.utilisateur.prenom} {emprunt.utilisateur.nom}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-zinc-400">
                         ID Emprunt: {emprunt.id_emprunt}
                       </p>
                     </div>
-                    <Badge 
+                    <Badge
                       variant="secondary"
-                      className={getStatutStyle(emprunt.statut)}
+                      className={`px-2 py-1 rounded ${getStatutStyle(
+                        emprunt.statut
+                      )}`}
                     >
                       {emprunt.statut}
                     </Badge>
@@ -98,17 +105,27 @@ export function DialogEmpruntHistorique({
 
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-500">Date de début</p>
-                      <p>{new Date(emprunt.date_debut).toLocaleDateString('fr-FR')}</p>
+                      <p className="text-zinc-400">Date de début</p>
+                      <p className="text-zinc-200">
+                        {new Date(emprunt.date_debut).toLocaleDateString(
+                          "fr-FR"
+                        )}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Date de fin prévue</p>
-                      <p>{new Date(emprunt.date_fin).toLocaleDateString('fr-FR')}</p>
+                      <p className="text-zinc-400">Date de fin prévue</p>
+                      <p className="text-zinc-200">
+                        {new Date(emprunt.date_fin).toLocaleDateString("fr-FR")}
+                      </p>
                     </div>
                     {emprunt.date_retour && (
                       <div className="col-span-2">
-                        <p className="text-gray-500">Retourné le</p>
-                        <p>{new Date(emprunt.date_retour).toLocaleDateString('fr-FR')}</p>
+                        <p className="text-zinc-400">Retourné le</p>
+                        <p className="text-zinc-200">
+                          {new Date(emprunt.date_retour).toLocaleDateString(
+                            "fr-FR"
+                          )}
+                        </p>
                       </div>
                     )}
                   </div>
