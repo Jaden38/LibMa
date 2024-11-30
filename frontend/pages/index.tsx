@@ -123,7 +123,7 @@ export default function Home() {
 
   return (
     <main className="container mx-auto p-6 bg-zinc-900 text-zinc-100 rounded-lg shadow-lg">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-12">
         <h1 className="text-3xl font-extrabold text-zinc-100">LibMa</h1>
         <div className="flex space-x-4">
           <Link href="/profile">
