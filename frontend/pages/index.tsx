@@ -17,8 +17,13 @@ interface Livre {
 export default function Home() {
   const router = useRouter();
   const [livres, setLivres] = useState<Livre[]>([]);
+  const [filteredLivres, setFilteredLivres] = useState<Livre[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tagColors, setTagColors] = useState<{ [key: string]: string }>({});
+  const [search, setSearch] = useState("");
+  const [filterGenre, setFilterGenre] = useState<string | null>(null);
+  const [filterCategorie, setFilterCategorie] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -32,6 +37,8 @@ export default function Home() {
       .then((data) => {
         if (Array.isArray(data)) {
           setLivres(data);
+          setFilteredLivres(data);
+          generateTagColors(data);
         } else {
           throw new Error("Data received is not an array");
         }
@@ -43,118 +50,200 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
+  const generateTagColors = (data: Livre[]) => {
+    const colors = [
+      "bg-pink-200 text-pink-800 border-pink-400",
+      "bg-blue-200 text-blue-800 border-blue-400",
+      "bg-green-200 text-green-800 border-green-400",
+      "bg-yellow-200 text-yellow-800 border-yellow-400",
+      "bg-purple-200 text-purple-800 border-purple-400",
+      "bg-orange-200 text-orange-800 border-orange-400",
+      "bg-teal-200 text-teal-800 border-teal-400",
+    ];
+    const usedColors: { [key: string]: string } = {};
+    let colorIndex = 0;
+
+    data.forEach((livre) => {
+      [livre.genre, livre.categorie].forEach((tag) => {
+        if (tag && !usedColors[tag]) {
+          usedColors[tag] = colors[colorIndex % colors.length];
+          colorIndex++;
+        }
+      });
+    });
+
+    setTagColors(usedColors);
+  };
+
+  const filterBooks = () => {
+    let filtered = livres;
+
+    if (search) {
+      filtered = filtered.filter(
+        (livre) =>
+          livre.titre.toLowerCase().includes(search.toLowerCase()) ||
+          livre.auteur.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (filterGenre) {
+      filtered = filtered.filter((livre) => livre.genre === filterGenre);
+    }
+
+    if (filterCategorie) {
+      filtered = filtered.filter((livre) => livre.categorie === filterCategorie);
+    }
+
+    setFilteredLivres(filtered);
+  };
+
+  useEffect(() => {
+    filterBooks();
+  }, [search, filterGenre, filterCategorie]);
+
   const handleViewDetails = (livreId: number) => {
     router.push(`/livres/${livreId}`);
   };
 
   if (loading) {
     return (
-      <main className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-4 text-center">Gestion de la Bibliothèque</h1>
-        <p className="text-center">Chargement...</p>
+      <main className="flex items-center justify-center h-screen bg-zinc-900 text-zinc-100">
+        <p className="text-2xl font-semibold">Chargement...</p>
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-4 text-center">Gestion de la Bibliothèque</h1>
-        <p className="text-center text-red-500">Erreur: {error}</p>
+      <main className="flex items-center justify-center h-screen bg-zinc-900 text-red-400">
+        <p className="text-xl font-semibold">Erreur: {error}</p>
       </main>
     );
   }
 
   return (
-    <main className="container mx-auto p-4 bg-white rounded-lg shadow-md">
-      {/* Boutons en haut à droite */}
-      <div className="flex justify-end gap-4 mb-6">
-        <Link href="/profile">
-          <Button className="bg-[#003366] text-white hover:bg-[#002244] transition-colors rounded-xl px-4 py-2 shadow-lg transform hover:scale-105 flex items-center gap-2">
-            <FaUser className="text-lg" /> Mon Profil
-          </Button>
-        </Link>
-        <Link href="/login">
-          <Button className="bg-[#003366] text-white hover:bg-[#002244] transition-colors rounded-xl px-4 py-2 shadow-lg transform hover:scale-105 flex items-center gap-2">
-            <FaSignInAlt className="text-lg" /> Se connecter
-          </Button>
-        </Link>
-        <Link href="/register">
-          <Button className="bg-[#003366] text-white hover:bg-[#002244] transition-colors rounded-xl px-4 py-2 shadow-lg transform hover:scale-105 flex items-center gap-2">
-            <FaUserPlus className="text-lg" /> Créer un compte
-          </Button>
-        </Link>
+    <main className="container mx-auto p-6 bg-zinc-900 text-zinc-100 rounded-lg shadow-lg">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-extrabold text-zinc-100">LibMa</h1>
+        <div className="flex space-x-4">
+          <Link href="/profile">
+            <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
+              <FaUser /> Mon Profil
+            </Button>
+          </Link>
+          <Link href="/auth">
+            <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
+              <FaUserPlus /> Authentification
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      {/* Titre principal */}
-      <h1 className="text-4xl font-bold text-[#003366] text-center mb-6">
-        Gestion de la Bibliothèque
-      </h1>
+      <div className="mb-8 flex flex-wrap justify-between gap-4 items-center">
+        <div className="flex flex-wrap gap-4 items-center">
+          <input
+            type="text"
+            placeholder="Rechercher un livre..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <select
+            value={filterGenre || ""}
+            onChange={(e) => setFilterGenre(e.target.value || null)}
+            className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="">Tous les genres</option>
+            {Array.from(new Set(livres.map((livre) => livre.genre).filter(Boolean))).map((genre) => (
+              <option key={genre} value={genre}>
+                {genre}
+              </option>
+            ))}
+          </select>
+          <select
+            value={filterCategorie || ""}
+            onChange={(e) => setFilterCategorie(e.target.value || null)}
+            className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            <option value="">Toutes les catégories</option>
+            {Array.from(new Set(livres.map((livre) => livre.categorie).filter(Boolean))).map(
+              (categorie) => (
+                <option key={categorie} value={categorie}>
+                  {categorie}
+                </option>
+              )
+            )}
+          </select>
+        </div>
 
-      {/* Bouton Ajouter un livre */}
-      <div className="flex justify-center md:justify-end mb-6">
         <Link href="/add-book">
-          <Button className="bg-[#003366] text-white hover:bg-[#002244] transition-colors rounded-xl px-6 py-2 shadow-lg transform hover:scale-105 flex items-center gap-2">
-            <FaBook className="text-lg" /> Ajouter un livre
+          <Button className="inline-flex items-center gap-2 bg-zinc-800 text-zinc-100 px-6 py-3 rounded-lg hover:bg-zinc-700 transition-all">
+            <FaBook /> Ajouter un livre
           </Button>
         </Link>
       </div>
 
-      {/* Titre Catalogue stylisé */}
-      <div className="mt-6">
-        <h2 className="text-2xl font-bold text-[#003366] mb-4 relative text-center">
-          Catalogue des Livres
-        </h2>
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {livres.map((livre) => (
+      <section className="bg-zinc-800 p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-bold text-center mb-6 text-zinc-200">Catalogue des Livres</h2>
+
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {filteredLivres.map((livre) => (
             <div
               key={livre.id_livre}
-              className="p-6 border rounded-lg shadow-lg hover:shadow-xl transition-shadow bg-gray-50"
+              className="bg-zinc-700 p-5 rounded-xl shadow-lg flex flex-col justify-between hover:shadow-md"
             >
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-800">{livre.titre}</h3>
-                {livre.categorie && (
-                  <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
-                    {livre.categorie}
-                  </span>
+              <div>
+                <h3 className="text-lg font-semibold truncate text-zinc-100 mb-2">
+                  {livre.titre}
+                </h3>
+                <p className="text-sm text-zinc-400 mb-3">{livre.auteur}</p>
+
+                <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
+                  {livre.genre && (
+                    <span
+                      className={`px-2 py-1 rounded-md border ${tagColors[livre.genre] || "bg-gray-200 text-gray-800 border-gray-400"
+                        }`}
+                    >
+                      {livre.genre}
+                    </span>
+                  )}
+                  {livre.categorie && (
+                    <span
+                      className={`px-2 py-1 rounded-md border ${tagColors[livre.categorie] || "bg-gray-200 text-gray-800 border-gray-400"
+                        }`}
+                    >
+                      {livre.categorie}
+                    </span>
+                  )}
+                  {livre.date_sortie && (
+                    <span className="text-zinc-400">
+                      Publié le {new Date(livre.date_sortie).toLocaleDateString("fr-FR")}
+                    </span>
+                  )}
+                </div>
+
+                {livre.description && (
+                  <p className="text-sm text-zinc-300 line-clamp-3">{livre.description}</p>
                 )}
               </div>
 
-              <p className="text-gray-600 mt-1">{livre.auteur}</p>
-
-              <div className="mt-2 flex flex-wrap gap-2">
-                {livre.genre && <span className="text-sm text-gray-500">{livre.genre}</span>}
-                {livre.date_sortie && (
-                  <span className="text-sm text-gray-500">
-                    • Publié le {new Date(livre.date_sortie).toLocaleDateString("fr-FR")}
-                  </span>
-                )}
-              </div>
-
-              {livre.description && (
-                <p className="mt-3 text-sm text-gray-700 line-clamp-3">{livre.description}</p>
-              )}
-              <div className="mt-4 flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
+              <div className="mt-4 flex justify-center gap-4">
+                <button
                   onClick={() => handleViewDetails(livre.id_livre)}
+                  className="px-4 py-2 rounded-md border border-indigo-400 text-indigo-400 hover:bg-indigo-600 hover:text-zinc-100 transition-all"
                 >
                   Détails
-                </Button>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full md:w-auto border-[#3a5a87] text-[#3a5a87] hover:bg-[#b0c8e7] hover:border-[#2a4b70] hover:text-[#002244] transition-colors rounded-xl px-6 py-2 shadow-sm transform hover:scale-105"
+                </button>
+                <button
+                  className="px-4 py-2 rounded-md border border-teal-400 text-teal-400 hover:bg-teal-600 hover:text-zinc-100 transition-all"
                 >
                   Réserver
-                </Button>
+                </button>
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </section>
     </main>
   );
 }
