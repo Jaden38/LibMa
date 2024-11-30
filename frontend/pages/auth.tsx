@@ -82,22 +82,22 @@ const AuthPage: React.FC = () => {
           <div>
             <Input
               type="password"
-              placeholder="Password"
+              placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              aria-label="Password"
+              aria-label="Mot de passe"
             />
           </div>
           {activeTab === "register" && (
             <div>
               <Input
                 type="password"
-                placeholder="Confirm Password"
+                placeholder="Confirmer le mot de passe"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                aria-label="Confirm password"
+                aria-label="Confirmer le mot de passe"
               />
             </div>
           )}
