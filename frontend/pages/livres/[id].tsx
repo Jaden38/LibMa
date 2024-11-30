@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/Card";
 import BookCover from "@/components/ui/BookCover";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { DialogEmpruntHistorique } from "@/components/ui/DialogEmpruntHistorique";
+import { LoanHistoryDialog } from "@/components/ui/LoanHistoryDialog";
 
 interface Livre {
   id_livre: number;
@@ -224,7 +224,7 @@ export default function BookDetails() {
           </div>
         </Card>
       </div>
-      <DialogEmpruntHistorique
+      <LoanHistoryDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         exemplaire={selectedExemplaire}

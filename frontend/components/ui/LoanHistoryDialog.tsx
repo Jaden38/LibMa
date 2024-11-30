@@ -21,7 +21,7 @@ interface Emprunt {
   };
 }
 
-interface DialogEmpruntHistoriqueProps {
+interface LoanHistoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   exemplaire: {
@@ -32,13 +32,13 @@ interface DialogEmpruntHistoriqueProps {
   loading: boolean;
 }
 
-export function DialogEmpruntHistorique({
+export function LoanHistoryDialog({
   open,
   onOpenChange,
   exemplaire,
   emprunts,
   loading,
-}: DialogEmpruntHistoriqueProps) {
+}: LoanHistoryDialogProps) {
   if (!exemplaire) return null;
 
   const getStatutStyle = (statut: string) => {
