@@ -13,24 +13,22 @@ const AuthPage: React.FC = () => {
 
   const handleLogin = () => {
     if (!email || !password) {
-      setError("Email and password are required");
+      setError("L'email et le mot de passe sont requis.");
       return;
     }
     setError(null);
-    // todo(1): Add login logic here
   };
 
   const handleRegister = () => {
     if (!email || !password || !confirmPassword) {
-      setError("All fields are required");
+      setError("Tous les champs sont requis.");
       return;
     }
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Les mots de passe ne correspondent pas.");
       return;
     }
     setError(null);
-    // todo(2): Add register logic here
   };
 
   return (
@@ -66,17 +64,17 @@ const AuthPage: React.FC = () => {
 
 
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-          <h1 className="text-2xl font-bold text-center">
+          <h1 className="text-2xl font-bold text-center mb-4">
             {activeTab === "login" ? "Connexion" : "Inscription"}
           </h1>
           <div>
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="Adresse email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              aria-label="Email address"
+              aria-label="Adresse email"
             />
           </div>
           <div>
@@ -104,10 +102,10 @@ const AuthPage: React.FC = () => {
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           <Button
-            onClick={
-              activeTab === "login" ? handleLogin : handleRegister
+            onClick={activeTab === "login" ? handleLogin : handleRegister}
+            disabled={
+              !email || !password || (activeTab === "register" && !confirmPassword)
             }
-            disabled={!email || !password || (activeTab === "register" && !confirmPassword)}
             className="w-full py-3 bg-blue-600 text-sm text-zinc-100 rounded-md hover:bg-blue-500 transition focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
           >
             {activeTab === "login" ? "Se connecter" : "S'inscrire"}
@@ -118,7 +116,7 @@ const AuthPage: React.FC = () => {
 
       <button
         onClick={() => router.push("/")}
-        className="mt-4 px-4 py-2 bg-zinc-800 text-zinc-100 text-sm rounded-md hover:bg-zinc-700 transition"
+        className="mt-4 px-4 py-2 bg-zinc-800 text-sm text-zinc-100 rounded-md hover:bg-zinc-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
       >
         Retour à l'accueil
       </button>
