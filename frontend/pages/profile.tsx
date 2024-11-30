@@ -1,10 +1,11 @@
-// pages/profile.tsx
 import React, { useState } from "react";
 import Input from "@/components/ui/Input";
-import {Button} from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
+import { useRouter } from "next/router";
 
 const Profile: React.FC = () => {
-  const [email, setEmail] = useState("user@example.com"); // Exemple d'email initial
+  const router = useRouter();
+  const [email, setEmail] = useState("utilisateur@example.com");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -12,53 +13,65 @@ const Profile: React.FC = () => {
 
   const handleUpdateProfile = () => {
     if (!email || !password || !confirmPassword) {
-      setError("All fields are required");
+      setError("Tous les champs sont requis.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("Les mots de passe ne correspondent pas.");
       return;
     }
 
-    // Si tout est valide, on simule une mise à jour réussie
-    setMessage("Profile updated successfully!");
-    setError(null); // Reset error message if success
+    setMessage("Profil mis à jour avec succès !");
+    setError(null);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold mb-6 text-center text-[#003366]">Manage Your Profile</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-900 text-zinc-100">
+      <div className="w-full max-w-lg bg-zinc-800 rounded-lg shadow-lg p-6">
+        {/* Back Button */}
+        <button
+          onClick={() => router.back()}
+          className="mb-4 px-4 py-2 text-sm bg-zinc-700 text-zinc-100 rounded-md hover:bg-zinc-600 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          Retour
+        </button>
+
+        {/* Header */}
+        <h1 className="text-2xl font-bold text-center mb-6 text-zinc-100">
+          Gérer votre profil
+        </h1>
+
+        {/* Form */}
         <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <div>
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="Adresse email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-[#4a6fa5] rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#003366]"
-              aria-label="Email address"
+              className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              aria-label="Adresse email"
             />
           </div>
           <div>
             <Input
               type="password"
-              placeholder="New Password"
+              placeholder="Nouveau mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-[#4a6fa5] rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#003366]"
-              aria-label="New password"
+              className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              aria-label="Nouveau mot de passe"
             />
           </div>
           <div>
             <Input
               type="password"
-              placeholder="Confirm New Password"
+              placeholder="Confirmer le nouveau mot de passe"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full border border-[#4a6fa5] rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#003366]"
-              aria-label="Confirm new password"
+              className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              aria-label="Confirmer le nouveau mot de passe"
             />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -66,9 +79,9 @@ const Profile: React.FC = () => {
           <Button
             onClick={handleUpdateProfile}
             disabled={!email || !password || !confirmPassword}
-            className="w-full py-3 mt-4 bg-[#003366] text-white rounded-xl hover:bg-[#002244] focus:outline-none focus:ring-2 focus:ring-[#002244]"
+            className="w-full py-3 bg-blue-600 text-sm text-zinc-100 rounded-md hover:bg-blue-500 transition focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
           >
-            Update Profile
+            Mettre à jour le profil
           </Button>
         </form>
       </div>
