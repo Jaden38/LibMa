@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import pymysql
 from dotenv import load_dotenv
 import os
@@ -21,6 +23,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{os.getenv('MYSQL_USER')}:{os.
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+# Rate limiting
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["1000 per day", "100 per hour"]
+)
 
 def init_scheduler(notification_service):
     with app.app_context():
@@ -66,6 +75,16 @@ from app.notification_service import NotificationService
 
 
 from app import views, cli
+from app import models, views, cli
+
+# Register blueprints
+from app.routes.auth import auth_bp
+#from app.routes.user import user_bp  # not implemented yet
+from app.routes.library import library_bp #implementation example based on view.py
+
+app.register_blueprint(auth_bp, url_prefix='/auth')
+#app.register_blueprint(user_bp, url_prefix='/users')  # not implemented yet
+app.register_blueprint(library_bp, url_prefix='/library') #implementation example based on view.py
 
 if __name__ == '__main__':
     init_scheduler(NotificationService)
