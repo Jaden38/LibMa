@@ -230,12 +230,12 @@ export default function Home() {
               <div className="mt-4 flex justify-center gap-4">
                 <button
                   onClick={() => handleViewDetails(livre.id_livre)}
-                  className="px-4 py-2 rounded-md border border-indigo-400 text-indigo-400 hover:bg-indigo-600 hover:text-zinc-100 transition-all"
+                  className="px-4 my-0.5 rounded-md border border-indigo-400 text-indigo-400 hover:bg-indigo-600 hover:text-zinc-100 transition-all"
                 >
                   Détails
                 </button>
                 <button
-                  className="px-4 py-2 rounded-md border border-teal-400 text-teal-400 hover:bg-teal-600 hover:text-zinc-100 transition-all"
+                  className="px-4 my-0.5 rounded-md border border-teal-400 text-teal-400 hover:bg-teal-600 hover:text-zinc-100 transition-all"
                 >
                   Réserver
                 </button>
