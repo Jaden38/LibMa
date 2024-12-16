@@ -6,68 +6,67 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { LoanHistoryDialog } from "@/components/ui/LoanHistoryDialog";
 
-interface Livre {
-  id_livre: number;
-  titre: string;
-  auteur: string;
-  genre: string | null;
-  categorie: string | null;
-  date_sortie: string | null;
-  description: string | null;
-  image_url: string | null;
+interface Book {
+  id: number;
+  title: string;
+  author: string;
+  genre: string;
+  category: string;
+  release_date: string;
+  description: string;
+  image_url: string;
 }
 
-interface Exemplaire {
-  id_exemplaire: number;
-  code_unique: string;
-  statut: "disponible" | "emprunté" | "réservé" | "indisponible";
-  localisation: string | null;
+interface Sample {
+  id: number;
+  unique_code: string;
+  status: "disponible" | "emprunté" | "réservé" | "indisponible";
+  localization: string | null;
 }
 
-interface Emprunt {
-  id_emprunt: number;
-  date_debut: string;
-  date_fin: string;
-  date_retour: string | null;
-  statut: "en cours" | "terminé" | "en retard" | "annulé";
-  utilisateur: {
+interface Borrow {
+  id: number;
+  begin_date: string;
+  end_date: string;
+  return_date: string | null;
+  status: "en cours" | "terminé" | "en retard" | "annulé";
+  user: {
     id: number;
-    nom: string;
-    prenom: string;
+    lastname: string;
+    firstname: string;
   };
 }
 
 export default function BookDetails() {
   const router = useRouter();
   const { id } = router.query;
-  const [livre, setLivre] = useState<Livre | null>(null);
-  const [exemplaires, setExemplaires] = useState<Exemplaire[]>([]);
+  const [book, setBook] = useState<Book | null>(null);
+  const [samples, setSamples] = useState<Sample[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [emprunts, setEmprunts] = useState<Emprunt[]>([]);
-  const [selectedExemplaire, setSelectedExemplaire] =
-    useState<Exemplaire | null>(null);
-  const [loadingEmprunts, setLoadingEmprunts] = useState(false);
+  const [borrows, setBorrows] = useState<Borrow[]>([]);
+  const [selectedSample, setSelectedSample] =
+    useState<Sample | null>(null);
+  const [borrowsLoading, setborrowsLoading] = useState(false);
 
-  const loadEmpruntHistory = async (exemplaire: Exemplaire) => {
-    setSelectedExemplaire(exemplaire);
+  const loadEmpruntHistory = async (exemplaire: Sample) => {
+    setSelectedSample(exemplaire);
     setDialogOpen(true);
-    setLoadingEmprunts(true);
+    setborrowsLoading(true);
 
     try {
       const response = await fetch(
-        `http://localhost:5000/exemplaires/${exemplaire.id_exemplaire}/emprunts`
+        `http://localhost:5000/exemplaires/${exemplaire.id}/emprunts`
       );
       if (!response.ok)
         throw new Error("Erreur lors de la récupération des emprunts");
       const data = await response.json();
-      setEmprunts(data);
+      setBorrows(data);
     } catch (error) {
       console.error("Erreur:", error);
-      setEmprunts([]);
     } finally {
-      setLoadingEmprunts(false);
+      setborrowsLoading(false);
     }
   };
 
@@ -89,8 +88,8 @@ export default function BookDetails() {
         const livreData = await livreRes.json();
         const exemplairesData = await exemplairesRes.json();
 
-        setLivre(livreData);
-        setExemplaires(exemplairesData);
+        setBook(livreData);
+        setSamples(exemplairesData);
       } catch (err) {
         setError("Une erreur est survenue.");
       } finally {
@@ -126,7 +125,7 @@ export default function BookDetails() {
       <div className="flex items-center justify-between px-6 pt-5">
 
         <h1 className="text-4xl font-bold truncate text-zinc-100">
-          {livre?.titre}
+          {book?.title}
         </h1>
         <Button
           variant="outline"
@@ -143,8 +142,8 @@ export default function BookDetails() {
 
           <Card className="bg-zinc-800 p-4">
             <BookCover
-              imageUrl={livre?.image_url || ""}
-              title={livre?.titre || ""}
+              imageUrl={book?.image_url || ""}
+              title={book?.title || ""}
               className="w-full h-[300px] object-cover rounded-md"
             />
           </Card>
@@ -152,34 +151,37 @@ export default function BookDetails() {
 
           <Card className="lg:col-span-2 bg-zinc-800 p-6">
             <div className="space-y-4">
-              <p className="text-zinc-400">
+              <p className="text-zinc-400 px-2 py-1">
                 <strong className="text-zinc-200">Auteur:</strong>{" "}
-                {livre?.auteur}
+                {book?.author}
               </p>
-              {livre?.genre && (
-                <p className="text-zinc-400">
+              {book?.genre && (
+                <p className="text-zinc-400 px-2 py-1">
                   <strong className="text-zinc-200">Genre:</strong>{" "}
                   <Badge className="bg-blue-200 text-blue-800 border border-blue-400 px-2 py-1 rounded">
-                    {livre.genre}
+                    {book.genre}
                   </Badge>
                 </p>
               )}
-              {livre?.categorie && (
-                <p className="text-zinc-400">
+              {book?.category && (
+                <p className="text-zinc-400 px-2 py-1">
                   <strong className="text-zinc-200">Catégorie:</strong>{" "}
                   <Badge className="bg-purple-200 text-purple-800 border border-purple-400 px-2 py-1 rounded">
-                    {livre.categorie}
+                    {book.category}
                   </Badge>
                 </p>
               )}
-              {livre?.date_sortie && (
-                <p className="text-zinc-400">
+              {book?.release_date && (
+                <p className="text-zinc-400 px-2 py-1">
                   <strong className="text-zinc-200">Date de sortie:</strong>{" "}
-                  {new Date(livre.date_sortie).toLocaleDateString()}
+                  {new Date(book.release_date).toLocaleDateString()}
                 </p>
               )}
-              {livre?.description && (
-                <p className="text-zinc-400">{livre.description}</p>
+              {book?.description && (
+                <p className="text-zinc-400 px-2 py-1">
+                <strong className="text-zinc-200">Description:</strong>{" "}
+                {book.description}
+                </p>
               )}
             </div>
           </Card>
@@ -191,32 +193,32 @@ export default function BookDetails() {
             Exemplaires
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {exemplaires.map((exemplaire) => (
+            {samples.map((sample) => (
               <div
-                key={exemplaire.id_exemplaire}
+                key={sample.id}
                 className="p-4 bg-zinc-700 border rounded-lg hover:shadow-md transition cursor-pointer"
-                onClick={() => loadEmpruntHistory(exemplaire)}
+                onClick={() => loadEmpruntHistory(sample)}
               >
                 <div className="flex justify-between items-center mb-2">
                   <span className="font-medium truncate text-zinc-100">
-                    {exemplaire.code_unique}
+                    {sample.unique_code}
                   </span>
                   <Badge
-                    className={`px-2 py-1 rounded ${exemplaire.statut === "disponible"
+                    className={`px-2 py-1 rounded ${sample.status === "disponible"
                       ? "bg-green-200 text-green-800 border-green-400"
-                      : exemplaire.statut === "emprunté"
+                      : sample.status === "emprunté"
                         ? "bg-yellow-200 text-yellow-800 border-yellow-400"
-                        : exemplaire.statut === "réservé"
+                        : sample.status === "réservé"
                           ? "bg-blue-200 text-blue-800 border-blue-400"
                           : "bg-red-200 text-red-800 border-red-400"
                       }`}
                   >
-                    {exemplaire.statut}
+                    {sample.status}
                   </Badge>
                 </div>
-                {exemplaire.localisation && (
+                {sample.localization && (
                   <p className="text-sm text-zinc-400 truncate">
-                    {exemplaire.localisation}
+                    {sample.localization}
                   </p>
                 )}
               </div>
@@ -227,9 +229,9 @@ export default function BookDetails() {
       <LoanHistoryDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        exemplaire={selectedExemplaire}
-        emprunts={emprunts}
-        loading={loadingEmprunts}
+        sample={selectedSample}
+        borrows={borrows}
+        loading={borrowsLoading}
       />
     </div>
   );

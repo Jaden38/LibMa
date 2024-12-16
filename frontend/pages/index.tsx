@@ -4,20 +4,20 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { FaUser, FaUserPlus, FaBook } from "react-icons/fa";
 
-interface Livre {
-  id_livre: number;
-  titre: string;
-  auteur: string;
-  genre: string | null;
-  categorie: string | null;
-  date_sortie: string | null;
-  description: string | null;
+interface Book {
+  id: number;
+  title: string;
+  author: string;
+  genre: string;
+  category: string;
+  release_date: string;
+  description: string;
 }
 
 export default function Home() {
   const router = useRouter();
-  const [livres, setLivres] = useState<Livre[]>([]);
-  const [filteredLivres, setFilteredLivres] = useState<Livre[]>([]);
+  const [Books, setBooks] = useState<Book[]>([]);
+  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [tagColors, setTagColors] = useState<{ [key: string]: string }>({});
@@ -36,21 +36,21 @@ export default function Home() {
       })
       .then((data) => {
         if (Array.isArray(data)) {
-          setLivres(data);
-          setFilteredLivres(data);
+          setBooks(data);
+          setFilteredBooks(data);
           generateTagColors(data);
         } else {
           throw new Error("Data received is not an array");
         }
       })
       .catch((err) => {
-        console.error("Erreur lors de la récupération des livres:", err);
+        console.error("Erreur lors de la récupération des Books:", err);
         setError(err.message);
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const generateTagColors = (data: Livre[]) => {
+  const generateTagColors = (data: Book[]) => {
     const colors = [
       "bg-pink-200 text-pink-800 border-pink-400",
       "bg-blue-200 text-blue-800 border-blue-400",
@@ -63,8 +63,8 @@ export default function Home() {
     const usedColors: { [key: string]: string } = {};
     let colorIndex = 0;
 
-    data.forEach((livre) => {
-      [livre.genre, livre.categorie].forEach((tag) => {
+    data.forEach((Book) => {
+      [Book.genre, Book.category].forEach((tag) => {
         if (tag && !usedColors[tag]) {
           usedColors[tag] = colors[colorIndex % colors.length];
           colorIndex++;
@@ -76,33 +76,33 @@ export default function Home() {
   };
 
   const filterBooks = () => {
-    let filtered = livres;
+    let filtered = Books;
 
     if (search) {
       filtered = filtered.filter(
-        (livre) =>
-          livre.titre.toLowerCase().includes(search.toLowerCase()) ||
-          livre.auteur.toLowerCase().includes(search.toLowerCase())
+        (Book) =>
+          Book.title.toLowerCase().includes(search.toLowerCase()) ||
+          Book.author.toLowerCase().includes(search.toLowerCase())
       );
     }
 
     if (filterGenre) {
-      filtered = filtered.filter((livre) => livre.genre === filterGenre);
+      filtered = filtered.filter((Book) => Book.genre === filterGenre);
     }
 
     if (filterCategorie) {
-      filtered = filtered.filter((livre) => livre.categorie === filterCategorie);
+      filtered = filtered.filter((Book) => Book.category === filterCategorie);
     }
 
-    setFilteredLivres(filtered);
+    setFilteredBooks(filtered);
   };
 
   useEffect(() => {
     filterBooks();
   }, [search, filterGenre, filterCategorie]);
 
-  const handleViewDetails = (livreId: number) => {
-    router.push(`/livres/${livreId}`);
+  const handleViewDetails = (BookId: number) => {
+    router.push(`/livres/${BookId}`);
   };
 
   if (loading) {
@@ -143,7 +143,7 @@ export default function Home() {
         <div className="flex flex-wrap gap-4 items-center">
           <input
             type="text"
-            placeholder="Rechercher un livre..."
+            placeholder="Rechercher un Book..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -154,7 +154,7 @@ export default function Home() {
             className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="">Tous les genres</option>
-            {Array.from(new Set(livres.map((livre) => livre.genre).filter(Boolean))).map((genre) => (
+            {Array.from(new Set(Books.map((Book) => Book.genre).filter(Boolean))).map((genre) => (
               <option key={genre} value={genre}>
                 {genre}
               </option>
@@ -166,7 +166,7 @@ export default function Home() {
             className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="">Toutes les catégories</option>
-            {Array.from(new Set(livres.map((livre) => livre.categorie).filter(Boolean))).map(
+            {Array.from(new Set(Books.map((Book) => Book.category).filter(Boolean))).map(
               (categorie) => (
                 <option key={categorie} value={categorie}>
                   {categorie}
@@ -178,58 +178,58 @@ export default function Home() {
 
         <Link href="/add-book">
           <Button className="inline-flex items-center gap-2 bg-zinc-800 text-zinc-100 px-6 py-3 rounded-lg hover:bg-zinc-700 transition-all">
-            <FaBook /> Ajouter un livre
+            <FaBook /> Ajouter un Book
           </Button>
         </Link>
       </div>
 
       <section className="bg-zinc-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-6 text-zinc-200">Catalogue des Livres</h2>
+        <h2 className="text-2xl font-bold text-center mb-6 text-zinc-200">Catalogue des Books</h2>
 
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filteredLivres.map((livre) => (
+          {filteredBooks.map((Book) => (
             <div
-              key={livre.id_livre}
+              key={Book.id}
               className="bg-zinc-700 p-5 rounded-xl shadow-lg flex flex-col justify-between hover:shadow-md"
             >
               <div>
                 <h3 className="text-lg font-semibold truncate text-zinc-100 mb-2">
-                  {livre.titre}
+                  {Book.title}
                 </h3>
-                <p className="text-sm text-zinc-400 mb-3">{livre.auteur}</p>
+                <p className="text-sm text-zinc-400 mb-3">{Book.author}</p>
 
                 <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
-                  {livre.genre && (
+                  {Book.genre && (
                     <span
-                      className={`px-2 py-1 rounded-md border ${tagColors[livre.genre] || "bg-gray-200 text-gray-800 border-gray-400"
+                      className={`px-2 py-1 rounded-md border ${tagColors[Book.genre] || "bg-gray-200 text-gray-800 border-gray-400"
                         }`}
                     >
-                      {livre.genre}
+                      {Book.genre}
                     </span>
                   )}
-                  {livre.categorie && (
+                  {Book.category && (
                     <span
-                      className={`px-2 py-1 rounded-md border ${tagColors[livre.categorie] || "bg-gray-200 text-gray-800 border-gray-400"
+                      className={`px-2 py-1 rounded-md border ${tagColors[Book.category] || "bg-gray-200 text-gray-800 border-gray-400"
                         }`}
                     >
-                      {livre.categorie}
+                      {Book.category}
                     </span>
                   )}
-                  {livre.date_sortie && (
+                  {Book.release_date && (
                     <span className="text-zinc-400">
-                      Publié le {new Date(livre.date_sortie).toLocaleDateString("fr-FR")}
+                      Publié le {new Date(Book.release_date).toLocaleDateString("fr-FR")}
                     </span>
                   )}
                 </div>
 
-                {livre.description && (
-                  <p className="text-sm text-zinc-300 line-clamp-3">{livre.description}</p>
+                {Book.description && (
+                  <p className="text-sm text-zinc-300 line-clamp-3">{Book.description}</p>
                 )}
               </div>
 
               <div className="mt-4 flex justify-center gap-4">
                 <button
-                  onClick={() => handleViewDetails(livre.id_livre)}
+                  onClick={() => handleViewDetails(Book.id)}
                   className="px-4 my-0.5 rounded-md border border-indigo-400 text-indigo-400 hover:bg-indigo-600 hover:text-zinc-100 transition-all"
                 >
                   Détails

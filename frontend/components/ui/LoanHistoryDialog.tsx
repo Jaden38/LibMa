@@ -8,62 +8,64 @@ import {
 import { Badge } from "@/components/ui/Badge";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 
-interface Emprunt {
-  id_emprunt: number;
-  date_debut: string;
-  date_fin: string;
-  date_retour: string | null;
-  statut: "en cours" | "terminé" | "en retard" | "annulé";
-  utilisateur: {
+interface Borrow {
+  id: number;
+  begin_date: string;
+  end_date: string;
+  return_date: string | null;
+  status: "en cours" | "terminé" | "en retard" | "annulé";
+  user: {
     id: number;
-    nom: string;
-    prenom: string;
+    lastname: string;
+    firstname: string;
   };
 }
 
 interface LoanHistoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  exemplaire: {
-    code_unique: string;
-    statut: "disponible" | "emprunté" | "réservé" | "indisponible";
+  sample: {
+    unique_code: string;
+    status: "disponible" | "emprunté" | "réservé" | "indisponible";
   } | null;
-  emprunts: Emprunt[];
+  borrows: Borrow[];
   loading: boolean;
 }
 
 export function LoanHistoryDialog({
   open,
   onOpenChange,
-  exemplaire,
-  emprunts,
+  sample,
+  borrows,
   loading,
 }: LoanHistoryDialogProps) {
-  if (!exemplaire) return null;
+  if (!sample) return null;
 
-  const getStatutStyle = (statut: string) => {
+  const getStatutStyle = (status: "disponible" | "emprunté" | "réservé" | "indisponible") => {
     const styles = {
       disponible: "bg-green-200 text-green-800 border-green-400",
       emprunté: "bg-yellow-200 text-yellow-800 border-yellow-400",
       réservé: "bg-blue-200 text-blue-800 border-blue-400",
       indisponible: "bg-gray-200 text-gray-800 border-gray-400",
-    };
-    return styles[statut] || "bg-zinc-200 text-zinc-800 border-zinc-400";
+    } as const;
+
+    return styles[status] ?? "bg-zinc-200 text-zinc-800 border-zinc-400";
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] bg-zinc-800 text-zinc-100 rounded-lg shadow-lg">
         <DialogHeader>
           <DialogTitle className="flex justify-normal gap-2 items-center text-zinc-100">
-            <span>Historique des emprunts - {exemplaire.code_unique}</span>
+            <span>Historique des emprunts - {sample.unique_code}</span>
             <Badge
               variant="secondary"
               className={`px-2 py-1 rounded ${getStatutStyle(
-                exemplaire.statut
+                sample.status
               )}`}
             >
-              {exemplaire.statut}
+              {sample.status}
             </Badge>
           </DialogTitle>
         </DialogHeader>
@@ -73,33 +75,31 @@ export function LoanHistoryDialog({
             <div className="flex items-center justify-center h-24 text-zinc-400">
               <p>Chargement de l'historique...</p>
             </div>
-          ) : emprunts.length === 0 ? (
+          ) : borrows.length === 0 ? (
             <div className="flex items-center justify-center h-24 text-zinc-400">
               Aucun emprunt enregistré pour cet exemplaire
             </div>
           ) : (
             <div className="space-y-4">
-              {emprunts.map((emprunt) => (
+              {borrows.map((borrow) => (
                 <div
-                  key={emprunt.id_emprunt}
+                  key={borrow.id}
                   className="border border-zinc-600 bg-zinc-700 rounded-lg p-4 space-y-2"
                 >
                   <div className="flex justify-between items-start">
                     <div className="space-y-1">
                       <p className="font-medium text-zinc-100">
-                        {emprunt.utilisateur.prenom} {emprunt.utilisateur.nom}
+                        {borrow.user.firstname} {borrow.user.lastname}
                       </p>
                       <p className="text-sm text-zinc-400">
-                        ID Emprunt: {emprunt.id_emprunt}
+                        ID Emprunt: {borrow.id}
                       </p>
                     </div>
                     <Badge
                       variant="secondary"
-                      className={`px-2 py-1 rounded ${getStatutStyle(
-                        emprunt.statut
-                      )}`}
+                      className={`px-2 py-1 rounded ${getStatutStyle(borrow.status as "disponible" | "emprunté" | "réservé" | "indisponible")}`}
                     >
-                      {emprunt.statut}
+                      {borrow.status}
                     </Badge>
                   </div>
 
@@ -107,7 +107,7 @@ export function LoanHistoryDialog({
                     <div>
                       <p className="text-zinc-400">Date de début</p>
                       <p className="text-zinc-200">
-                        {new Date(emprunt.date_debut).toLocaleDateString(
+                        {new Date(borrow.begin_date).toLocaleDateString(
                           "fr-FR"
                         )}
                       </p>
@@ -115,14 +115,14 @@ export function LoanHistoryDialog({
                     <div>
                       <p className="text-zinc-400">Date de fin prévue</p>
                       <p className="text-zinc-200">
-                        {new Date(emprunt.date_fin).toLocaleDateString("fr-FR")}
+                        {new Date(borrow.end_date).toLocaleDateString("fr-FR")}
                       </p>
                     </div>
-                    {emprunt.date_retour && (
+                    {borrow.return_date && (
                       <div className="col-span-2">
                         <p className="text-zinc-400">Retourné le</p>
                         <p className="text-zinc-200">
-                          {new Date(emprunt.date_retour).toLocaleDateString(
+                          {new Date(borrow.return_date).toLocaleDateString(
                             "fr-FR"
                           )}
                         </p>
