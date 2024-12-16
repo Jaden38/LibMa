@@ -1,13 +1,16 @@
 from app import app, db
 from app.models import Book, Sample, Borrow
-from flask import jsonify
+from app.proxy import *
+from flask import jsonify, request
 import logging
+
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
 @app.route("/livres")
+@limiter.limit("1000/hour")
 def get_books():
     try:
         books = Book.query.all()
@@ -95,6 +98,7 @@ def get_sample(id):
 
 
 @app.route("/exemplaires/<int:id>/emprunts")
+@require_auth
 def get_borrowed_sample(id):
     try:
         borrows = (
@@ -126,6 +130,15 @@ def get_borrowed_sample(id):
         )
         return jsonify({"error": "Erreur de DB:", "message": str(e)}), 500
 
+# Rate limiting implementation
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
 
 @app.after_request
 def after_request(response):
