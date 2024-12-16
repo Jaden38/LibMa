@@ -6,6 +6,8 @@ from mysql.connector import Error
 import os
 from datetime import datetime
 from sqlalchemy import text
+from scripts.generate_models import generate_models as generate_models_command
+
 
 def execute_sql_file(cursor, filename):
     """Execute SQL commands from a file"""
@@ -195,3 +197,5 @@ def check_connections():
     except Error as e:
         print("Direct MySQL connection: FAILED")
         print(f"Error: {str(e)}")
+        
+app.cli.add_command(generate_models_command, name='generate-models')
