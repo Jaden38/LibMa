@@ -63,9 +63,7 @@ def get_book(id):
 @app.route("/livres/<int:id>/exemplaires")
 def get_sample(id):
     try:
-
         book = Book.query.get_or_404(id)
-
         samples = Sample.query.filter_by(book_id=id).all()
         logger.debug(f"Nombre d'exemplaires trouvés pour le livre {id}: {len(samples)}")
 
@@ -83,7 +81,6 @@ def get_sample(id):
             }
             for sample in samples
         ]
-
         return jsonify(result)
     except Exception as e:
         logger.error(
@@ -105,7 +102,6 @@ def get_borrowed_sample(id):
             .order_by(Sample.begin_date.desc())
             .all()
         )
-
         result = [
             {
                 "id": borrow.borrow_id,
@@ -123,7 +119,6 @@ def get_borrowed_sample(id):
             }
             for borrow in borrows
         ]
-
         return jsonify(result)
     except Exception as e:
         logger.error(
