@@ -1,5 +1,4 @@
--- Populate Utilisateurs table
-INSERT INTO Utilisateurs (nom, prenom, mail, mot_de_passe, role, statut) VALUES
+INSERT INTO Users (lastname, firstname, mail, user_password, user_role, user_status) VALUES
 ('Dubois', 'Jean', 'jean.dubois@email.com', 'hashed_password_1', 'administrateur', 'actif'),
 ('Martin', 'Sophie', 'sophie.martin@email.com', 'hashed_password_2', 'bibliothécaire', 'actif'),
 ('Bernard', 'Michel', 'michel.bernard@email.com', 'hashed_password_3', 'bibliothécaire', 'actif'),
@@ -9,8 +8,7 @@ INSERT INTO Utilisateurs (nom, prenom, mail, mot_de_passe, role, statut) VALUES
 ('Richard', 'Thomas', 'thomas.richard@email.com', 'hashed_password_7', 'membre', 'actif'),
 ('Laurent', 'Julie', 'julie.laurent@email.com', 'hashed_password_8', 'membre', 'actif');
 
--- Populate Livres table (extended)
-INSERT INTO Livres (titre, auteur, genre, categorie, date_sortie, description) VALUES
+INSERT INTO Books (title, author, genre, category, release_date, book_description) VALUES
 ('Les Misérables', 'Victor Hugo', 'Roman', 'Classique', '1862-01-01', 'Une épopée sociale dans la France du XIXe siècle'),
 ('1984', 'George Orwell', 'Science-Fiction', 'Dystopie', '1949-06-08', 'Une vision effrayante d''un futur totalitaire'),
 ('Le Petit Prince', 'Antoine de Saint-Exupéry', 'Conte', 'Jeunesse', '1943-04-06', 'Un conte poétique et philosophique'),
@@ -41,8 +39,7 @@ INSERT INTO Livres (titre, auteur, genre, categorie, date_sortie, description) V
 ('Dune', 'Frank Herbert', 'Science-Fiction', 'Épopée', '1965-08-01', 'Une saga intergalactique sur le pouvoir et la survie'),
 ('Le Nom de la Rose', 'Umberto Eco', 'Roman', 'Historique', '1980-01-01', 'Un polar médiéval dans une abbaye bénédictine');
 
--- Populate Exemplaires table
-INSERT INTO Exemplaires (id_livre, code_unique, statut, date_acquisition, localisation) VALUES
+INSERT INTO Samples (book_id, unique_code, sample_status, procurement_date, localization) VALUES
 (1, 'LM001', 'disponible', '2023-01-15', 'Étagère A1'),
 (1, 'LM002', 'emprunté', '2023-01-15', 'Étagère A1'),
 (2, '1984001', 'disponible', '2023-02-20', 'Étagère B2'),
@@ -52,30 +49,26 @@ INSERT INTO Exemplaires (id_livre, code_unique, statut, date_acquisition, locali
 (6, 'CMC001', 'disponible', '2023-06-18', 'Étagère F6'),
 (7, 'CAN001', 'indisponible', '2023-07-22', 'Réparation');
 
--- Populate Emprunts table
-INSERT INTO Emprunts (id_utilisateur, id_exemplaire, date_debut, date_fin, date_retour, statut, approuve_par) VALUES
+INSERT INTO Borrows (user_id, sample_id, begin_date, end_date, returned_at, borrow_status, approved_by) VALUES
 (4, 2, '2024-01-01', '2024-01-15', NULL, 'en cours', 2),
 (5, 5, '2024-01-05', '2024-01-19', NULL, 'en cours', 2),
 (7, 6, '2023-12-15', '2023-12-29', '2023-12-28', 'terminé', 3),
 (4, 3, '2023-12-01', '2023-12-15', '2023-12-18', 'en retard', 2),
 (8, 1, '2023-11-20', '2023-12-04', '2023-12-04', 'terminé', 2);
 
--- Populate Reservations table
-INSERT INTO Reservations (id_utilisateur, id_livre, statut, date_expiration) VALUES
+INSERT INTO Reservations (user_id, book_id, reservation_status, expiration_date) VALUES
 (5, 3, 'active', '2024-02-01'),
 (6, 2, 'annulée', '2024-01-15'),
 (7, 4, 'confirmée', '2024-02-05'),
 (8, 1, 'active', '2024-02-10');
 
--- Populate Notifications table
-INSERT INTO Notifications (id_utilisateur, type, message) VALUES
+INSERT INTO Notifications (user_id, notification_type, notification_message) VALUES
 (4, 'rappel_emprunt', 'Votre emprunt arrive à échéance dans 2 jours.'),
 (5, 'nouvelle_reservation', 'Votre réservation a été confirmée.'),
 (7, 'date_echeance', 'Un livre que vous avez réservé est maintenant disponible.'),
 (8, 'rappel_emprunt', 'Merci de retourner votre livre dans les plus brefs délais.');
 
--- Populate Logs table
-INSERT INTO Logs (id_utilisateur, action, details) VALUES
+INSERT INTO Logs (user_id, log_action, log_details) VALUES
 (1, 'création_compte', 'Création d''un nouveau compte bibliothécaire'),
 (2, 'validation_emprunt', 'Validation de l''emprunt #1'),
 (3, 'ajout_livre', 'Ajout d''un nouveau livre au catalogue'),

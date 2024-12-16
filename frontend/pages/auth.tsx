@@ -42,8 +42,8 @@ const AuthPage: React.FC = () => {
               setError(null);
             }}
             className={`text-sm font-medium px-4 py-2 rounded-md ${activeTab === "login"
-                ? "bg-zinc-700 text-zinc-100"
-                : "text-zinc-400 hover:text-zinc-100"
+              ? "bg-zinc-700 text-zinc-100"
+              : "text-zinc-400 hover:text-zinc-100"
               }`}
           >
             Se connecter
@@ -54,8 +54,8 @@ const AuthPage: React.FC = () => {
               setError(null);
             }}
             className={`text-sm font-medium px-4 py-2 rounded-md ${activeTab === "register"
-                ? "bg-zinc-700 text-zinc-100"
-                : "text-zinc-400 hover:text-zinc-100"
+              ? "bg-zinc-700 text-zinc-100"
+              : "text-zinc-400 hover:text-zinc-100"
               }`}
           >
             S'inscrire
