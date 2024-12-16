@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
 import BookCover from "@/components/ui/BookCover";
-import { DialogEmpruntHistorique } from "@/components/ui/DialogEmpruntHistorique";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { LoanHistoryDialog } from "@/components/ui/LoanHistoryDialog";
 
 interface Livre {
   id_livre: number;
@@ -21,7 +21,6 @@ interface Exemplaire {
   id_exemplaire: number;
   code_unique: string;
   statut: "disponible" | "emprunté" | "réservé" | "indisponible";
-  date_acquisition: string | null;
   localisation: string | null;
 }
 
@@ -45,10 +44,10 @@ export default function BookDetails() {
   const [exemplaires, setExemplaires] = useState<Exemplaire[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [emprunts, setEmprunts] = useState<Emprunt[]>([]);
   const [selectedExemplaire, setSelectedExemplaire] =
     useState<Exemplaire | null>(null);
-  const [emprunts, setEmprunts] = useState<Emprunt[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [loadingEmprunts, setLoadingEmprunts] = useState(false);
 
   const loadEmpruntHistory = async (exemplaire: Exemplaire) => {
@@ -75,164 +74,148 @@ export default function BookDetails() {
   useEffect(() => {
     if (!id) return;
 
-    const fetchBookDetails = async () => {
+    const fetchDetails = async () => {
       try {
         setLoading(true);
-        const [bookResponse, copiesResponse] = await Promise.all([
+        const [livreRes, exemplairesRes] = await Promise.all([
           fetch(`http://localhost:5000/livres/${id}`),
           fetch(`http://localhost:5000/livres/${id}/exemplaires`),
         ]);
 
-        if (!bookResponse.ok || !copiesResponse.ok) {
-          throw new Error("Erreur lors de la récupération des données");
+        if (!livreRes.ok || !exemplairesRes.ok) {
+          throw new Error("Erreur de récupération des données");
         }
 
-        const bookData = await bookResponse.json();
-        const copiesData = await copiesResponse.json();
+        const livreData = await livreRes.json();
+        const exemplairesData = await exemplairesRes.json();
 
-        setLivre(bookData);
-        setExemplaires(copiesData);
+        setLivre(livreData);
+        setExemplaires(exemplairesData);
       } catch (err) {
-        console.error("Erreur:", err);
-        setError(
-          err instanceof Error ? err.message : "Une erreur est survenue"
-        );
+        setError("Une erreur est survenue.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBookDetails();
+    fetchDetails();
   }, [id]);
 
   if (loading) {
     return (
-      <div className="h-screen p-4">
-        <h1 className="text-2xl font-bold mb-4">Chargement...</h1>
-      </div>
+      <main className="flex items-center justify-center h-screen bg-zinc-900 text-zinc-100">
+        <p className="text-lg font-bold">Chargement...</p>
+      </main>
     );
   }
 
-  if (error || !livre) {
+  if (error) {
     return (
-      <div className="h-screen p-4">
-        <div className="text-red-500">{error || "Livre non trouvé"}</div>
+      <main className="flex items-center justify-center h-screen bg-zinc-900 text-red-400">
+        <p className="text-xl font-semibold">{error}</p>
         <Button onClick={() => router.back()} className="mt-4">
           Retour
         </Button>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="h-screen p-4 flex flex-col">
-      {/* Header - Titre et bouton retour */}
-      <div className="flex items-center gap-4 mb-3">
-        <Button variant="outline" size="sm" onClick={() => router.back()}>
+    <div className="flex flex-col min-h-screen bg-zinc-900 text-zinc-100 overflow-hidden">
+
+      <div className="flex items-center justify-between px-6 pt-5">
+
+        <h1 className="text-4xl font-bold truncate text-zinc-100">
+          {livre?.titre}
+        </h1>
+        <Button
+          variant="outline"
+          onClick={() => router.back()}
+          className="px-4 py-2 bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+        >
           Retour
         </Button>
-        <h1 className="text-2xl font-bold truncate">{livre.titre}</h1>
       </div>
 
-      {/* Contenu principal */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-grow">
-        {/* Colonne de gauche - Image */}
-        <div className="lg:col-span-1">
-          <Card className="p-2 h-full">
-            <div className="h-full max-h-[400px]">
-              <BookCover
-                imageUrl={livre.image_url}
-                title={livre.titre}
-                className="h-full"
-              />
+
+      <div className="flex-grow p-6 overflow-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <Card className="bg-zinc-800 p-4">
+            <BookCover
+              imageUrl={livre?.image_url || ""}
+              title={livre?.titre || ""}
+              className="w-full h-[300px] object-cover rounded-md"
+            />
+          </Card>
+
+
+          <Card className="lg:col-span-2 bg-zinc-800 p-6">
+            <div className="space-y-4">
+              <p className="text-zinc-400">
+                <strong className="text-zinc-200">Auteur:</strong>{" "}
+                {livre?.auteur}
+              </p>
+              {livre?.genre && (
+                <p className="text-zinc-400">
+                  <strong className="text-zinc-200">Genre:</strong>{" "}
+                  <Badge className="bg-blue-200 text-blue-800 border border-blue-400 px-2 py-1 rounded">
+                    {livre.genre}
+                  </Badge>
+                </p>
+              )}
+              {livre?.categorie && (
+                <p className="text-zinc-400">
+                  <strong className="text-zinc-200">Catégorie:</strong>{" "}
+                  <Badge className="bg-purple-200 text-purple-800 border border-purple-400 px-2 py-1 rounded">
+                    {livre.categorie}
+                  </Badge>
+                </p>
+              )}
+              {livre?.date_sortie && (
+                <p className="text-zinc-400">
+                  <strong className="text-zinc-200">Date de sortie:</strong>{" "}
+                  {new Date(livre.date_sortie).toLocaleDateString()}
+                </p>
+              )}
+              {livre?.description && (
+                <p className="text-zinc-400">{livre.description}</p>
+              )}
             </div>
           </Card>
         </div>
 
-        {/* Colonne du milieu - Informations */}
-        <Card className="lg:col-span-2 p-4 overflow-auto">
-          <div className="space-y-2">
-            <div>
-              <p className="text-sm text-gray-500">Auteur</p>
-              <p className="font-medium">{livre.auteur}</p>
-            </div>
-            {livre.genre && (
-              <div>
-                <p className="text-sm text-gray-500">Genre</p>
-                <p className="font-medium">{livre.genre}</p>
-              </div>
-            )}
-            {livre.categorie && (
-              <div>
-                <p className="text-sm text-gray-500">Catégorie</p>
-                <p className="font-medium">{livre.categorie}</p>
-              </div>
-            )}
-            {livre.date_sortie && (
-              <div>
-                <p className="text-sm text-gray-500">Date de sortie</p>
-                <p className="font-medium">
-                  {new Date(livre.date_sortie).toLocaleDateString("fr-FR")}
-                </p>
-              </div>
-            )}
-            {livre.description && (
-              <div>
-                <p className="text-sm text-gray-500">Description</p>
-                <p className="text-sm mt-1 line-clamp-4">{livre.description}</p>
-              </div>
-            )}
-          </div>
-        </Card>
 
-        {/* Section exemplaires */}
-        <Card className="lg:col-span-3 p-4 overflow-hidden">
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold">Exemplaires</h2>
-              <div className="text-sm space-x-2">
-                <span>Total: {exemplaires.length}</span>
-                <span>•</span>
-                <span>
-                  Disponibles:{" "}
-                  {
-                    exemplaires.filter((ex) => ex.statut === "disponible")
-                      .length
-                  }
-                </span>
-              </div>
-            </div>
-            <Button size="sm">Réserver</Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 overflow-auto max-h-[200px]">
+        <Card className="mt-6 bg-zinc-800 p-6">
+          <h2 className="text-xl font-semibold text-zinc-100 mb-4">
+            Exemplaires
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {exemplaires.map((exemplaire) => (
               <div
                 key={exemplaire.id_exemplaire}
-                className="p-2 border rounded-lg text-sm hover:shadow-md transition-shadow cursor-pointer"
+                className="p-4 bg-zinc-700 border rounded-lg hover:shadow-md transition cursor-pointer"
                 onClick={() => loadEmpruntHistory(exemplaire)}
               >
-                <div className="flex justify-between items-start">
-                  <span className="font-medium truncate">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium truncate text-zinc-100">
                     {exemplaire.code_unique}
                   </span>
                   <Badge
-                    variant="secondary"
-                    className={`text-xs ${
-                      exemplaire.statut === "disponible"
-                        ? "bg-green-100 text-green-800"
-                        : exemplaire.statut === "emprunté"
-                        ? "bg-yellow-100 text-yellow-800"
+                    className={`px-2 py-1 rounded ${exemplaire.statut === "disponible"
+                      ? "bg-green-200 text-green-800 border-green-400"
+                      : exemplaire.statut === "emprunté"
+                        ? "bg-yellow-200 text-yellow-800 border-yellow-400"
                         : exemplaire.statut === "réservé"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
+                          ? "bg-blue-200 text-blue-800 border-blue-400"
+                          : "bg-red-200 text-red-800 border-red-400"
+                      }`}
                   >
                     {exemplaire.statut}
                   </Badge>
                 </div>
                 {exemplaire.localisation && (
-                  <p className="text-xs text-gray-600 truncate">
+                  <p className="text-sm text-zinc-400 truncate">
                     {exemplaire.localisation}
                   </p>
                 )}
@@ -241,7 +224,7 @@ export default function BookDetails() {
           </div>
         </Card>
       </div>
-      <DialogEmpruntHistorique
+      <LoanHistoryDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         exemplaire={selectedExemplaire}
