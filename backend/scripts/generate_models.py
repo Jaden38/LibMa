@@ -13,14 +13,12 @@ def generate_models(output, overwrite):
     """Generate Flask-SQLAlchemy models from database schema"""
     load_dotenv()
 
-    # Get database connection details from environment variables
     db_user = os.getenv('MYSQL_USER')
     db_pass = os.getenv('MYSQL_PASSWORD')
     db_host = os.getenv('MYSQL_HOST')
     db_port = os.getenv('MYSQL_PORT', '3306')
     db_name = os.getenv('MYSQL_DATABASE')
 
-    # Construct the database URL
     db_url = f"mysql+pymysql://{db_user}:{
         db_pass}@{db_host}:{db_port}/{db_name}"
 
@@ -31,7 +29,6 @@ def generate_models(output, overwrite):
             return
 
     try:
-        # Check if flask-sqlacodegen is installed
         subprocess.run([sys.executable, "-m", "pip", "show", "flask-sqlacodegen"],
                        capture_output=True, check=True)
     except subprocess.CalledProcessError:
@@ -42,7 +39,6 @@ def generate_models(output, overwrite):
     print(f"Generating models from database {db_name}...")
 
     try:
-        # Run flask-sqlacodegen
         cmd = [
             "flask-sqlacodegen",
             "--flask",
@@ -54,11 +50,9 @@ def generate_models(output, overwrite):
         result = subprocess.run(
             cmd, capture_output=True, text=True, check=True)
 
-        # Read and modify the generated file
         with open(output_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        # Add custom imports and modify content
         header = '''from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import Enum
@@ -70,7 +64,6 @@ from app import db
             'from flask_sqlalchemy import SQLAlchemy\n', '')
         content = content.replace('db = SQLAlchemy()', '')
 
-        # Add Enum imports for status fields
         enums_definition = '''
 # Enum definitions
 class UserRole(str, Enum):
@@ -108,7 +101,6 @@ class NotificationType(str, Enum):
 
 '''
 
-        # Write modified content
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(header + enums_definition + content)
 

@@ -125,9 +125,9 @@ def db_status():
                 count = model.query.count()
                 print(f"{name}: {count} enregistrements")
 
-            active_users = Utilisateur.query.filter_by(statut="actif").count()
-            available_books = Exemplaire.query.filter_by(statut="disponible").count()
-            active_loans = Emprunt.query.filter_by(statut="en cours").count()
+            active_users = User.query.filter_by(statut="actif").count()
+            available_books = Sample.query.filter_by(statut="disponible").count()
+            active_loans = Borrow.query.filter_by(statut="en cours").count()
 
             print("\nStatistiques :")
             print("-" * 40)
