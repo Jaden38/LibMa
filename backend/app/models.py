@@ -3,6 +3,8 @@ from datetime import datetime
 from sqlalchemy import Enum
 from app import db
 
+
+# Enum definitions
 class UserRole(str, Enum):
     MEMBER = 'membre'
     LIBRARIAN = 'bibliothecaire'
@@ -35,6 +37,12 @@ class NotificationType(str, Enum):
     BORROW_REMINDER = 'rappel_emprunt'
     NEW_RESERVATION = 'nouvelle_reservation'
     DUE_DATE = 'date_echeance'
+
+# coding: utf-8
+
+
+
+
 
 
 class Book(db.Model):
