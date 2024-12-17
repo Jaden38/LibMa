@@ -1,11 +1,17 @@
 from app import app, db
 from app.models import Book, Sample, Borrow, Notification
-from flask import jsonify
-import logging
+from flask import jsonify, Response
+import logging, time, json
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+def format_sse(data: str, event=None) -> str:
+    """Format data for SSE"""
+    msg = f'data: {data}\n'
+    if event is not None:
+        msg = f'event: {event}\n{msg}'
+    return f'{msg}\n'
 
 @app.route("/livres")
 def get_books():
@@ -158,9 +164,54 @@ def internal_error(error):
         500,
     )
 
+@app.route('/notifications/stream/<int:user_id>')
+def stream_notifications(user_id):
+    """SSE endpoint for real-time notifications"""
+    def event_stream(user_id):
+        last_check = time.time()
+        
+        while True:
+            # Query for new notifications
+            notifications = Notification.query.filter(
+                Notification.user_id == user_id,
+                Notification.viewed == False,
+                Notification.creation_date >= db.func.from_unixtime(last_check)
+            ).all()
+            
+            if notifications:
+                # Format notifications for sending
+                data = [{
+                    'id': notif.notification_id,
+                    'type': notif.notification_type,
+                    'message': notif.notification_message,
+                    'creation_date': notif.creation_date.isoformat(),
+                    'viewed': bool(notif.viewed)
+                } for notif in notifications]
+                
+                yield format_sse(json.dumps(data), event='notification')
+            
+            # Update last check time
+            last_check = time.time()
+            
+            # Wait for 3 seconds before next check
+            time.sleep(3)
 
+    return Response(
+        event_stream(user_id),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': 'http://localhost:3000',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Content-Type': 'text/event-stream'
+        }
+    )
+
+# Update the existing notification endpoints with better error handling
 @app.route('/notifications/<int:user_id>')
 def get_user_notifications(user_id):
+    """Get all unread notifications for a user"""
     try:
         notifications = Notification.query.filter_by(
             user_id=user_id,
@@ -179,14 +230,18 @@ def get_user_notifications(user_id):
 
         return jsonify(result)
     except Exception as e:
+        logger.error(f"Error fetching notifications: {str(e)}")
         return jsonify({'error': 'Database error', 'message': str(e)}), 500
 
 @app.route('/notifications/<int:notification_id>/mark-read', methods=['POST'])
 def mark_notification_read(notification_id):
+    """Mark a notification as read"""
     try:
         notification = Notification.query.get_or_404(notification_id)
         notification.viewed = True
         db.session.commit()
         return jsonify({'message': 'Notification marked as read'})
     except Exception as e:
+        logger.error(f"Error marking notification as read: {str(e)}")
+        db.session.rollback()
         return jsonify({'error': 'Database error', 'message': str(e)}), 500

@@ -4,7 +4,7 @@ import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from  "@/components/ui/Alert";
+} from "@/components/ui/Alert"
 
 interface Notification {
   id: number;
@@ -18,22 +18,37 @@ const NotificationComponent = ({ userId }: { userId: number }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  const fetchNotifications = async () => {
-    try {
-      const response = await fetch(`http://localhost:5000/notifications/${userId}`);
-      if (!response.ok) throw new Error('Failed to fetch notifications');
-      const data = await response.json();
-      setNotifications(data);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    }
-  };
-
   useEffect(() => {
-    fetchNotifications();
-    // Fetch notifications every minute
-    const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
+    // Initial fetch of existing notifications
+    const fetchExistingNotifications = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/notifications/${userId}`);
+        if (!response.ok) throw new Error('Failed to fetch notifications');
+        const data = await response.json();
+        setNotifications(data);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchExistingNotifications();
+
+    // Set up SSE connection
+    const eventSource = new EventSource(`http://localhost:5000/notifications/stream/${userId}`);
+
+    eventSource.addEventListener('notification', (event) => {
+      const newNotifications = JSON.parse(event.data);
+      setNotifications(current => [...newNotifications, ...current]);
+    });
+
+    eventSource.onerror = (error) => {
+      console.error('SSE Error:', error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
   }, [userId]);
 
   const markAsRead = async (notificationId: number) => {
@@ -41,8 +56,9 @@ const NotificationComponent = ({ userId }: { userId: number }) => {
       await fetch(`http://localhost:5000/notifications/${notificationId}/mark-read`, {
         method: 'POST'
       });
-      // Remove the notification from the local state
-      setNotifications(notifications.filter(n => n.id !== notificationId));
+      setNotifications(current => 
+        current.filter(n => n.id !== notificationId)
+      );
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
