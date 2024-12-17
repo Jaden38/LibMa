@@ -7,7 +7,7 @@ import { DoorOpen, UserPlus, User, Book, BookCopy } from "lucide-react";
 import { IBook } from "@/types";
 
 export default function Home() {
-  const { user, logout } = useUser();
+  const { user, isLoggedIn, logout } = useUser();
   const router = useRouter();
   const [Books, setBooks] = useState<IBook[]>([]);
   const [filteredBooks, setFilteredBooks] = useState<IBook[]>([]);
@@ -120,7 +120,7 @@ export default function Home() {
         <h1 className="text-3xl font-extrabold text-zinc-100">LibMa</h1>
         <div className="flex space-x-4">
           {
-            user.loggedIn && (
+            isLoggedIn && (
               <Link href="/profile">
                 <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
                   <User /> Mon Profil
@@ -129,7 +129,7 @@ export default function Home() {
             )
           }
           {
-            user.role === "librarian" && (
+            user?.role === "bibliothecaire" && (
               <Link href="/emprunts">
                 <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
                   <BookCopy /> Voir les demandes d'emprunts
@@ -138,7 +138,7 @@ export default function Home() {
             )
           }
           {
-            user.role === "admin" && (
+            user?.role === "administrateur" && (
               <Link href="/gestion">
                 <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
                   <User /> Gérer les libraires
@@ -148,13 +148,13 @@ export default function Home() {
           }
           <Link href="/auth">
             {
-              !user.loggedIn && (
+              !isLoggedIn && (
                 <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
                   <UserPlus /> Authentification
                 </Button>
               )
               ||
-              user.loggedIn && (
+              isLoggedIn && (
                 <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all"
                   onClick={(() => logout())}>
                   <DoorOpen /> Se déconnecter
@@ -169,7 +169,6 @@ export default function Home() {
         <div className="flex flex-wrap gap-4 items-center">
           <input
             type="text"
-            placeholder="Rechercher un livre..."
             placeholder="Rechercher un livre..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -204,7 +203,7 @@ export default function Home() {
         </div>
 
         {
-          user.role === "Admin" || user.role === "Librarian" && (
+          user?.role === "administrateur" || user?.role === "bibliothecaire" && (
             <Link href="/add-book">
               <Button className="inline-flex items-center gap-2 bg-zinc-800 text-zinc-100 px-6 py-3 rounded-lg hover:bg-zinc-700 transition-all">
                 <Book /> Ajouter un livre
@@ -266,7 +265,7 @@ export default function Home() {
                   Détails
                 </button>
                 {
-                  user.loggedIn && (
+                  isLoggedIn && (
                     <button
                       className="px-4 my-0.5 rounded-md border border-lime-300 text-lime-300 hover:bg-lime-600 hover:text-zinc-100 transition-all"
                     >
