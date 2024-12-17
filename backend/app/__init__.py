@@ -3,6 +3,13 @@ from flask_sqlalchemy import SQLAlchemy
 import pymysql
 from dotenv import load_dotenv
 import os
+from apscheduler.schedulers.background import BackgroundScheduler
+import atexit
+import logging
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -15,7 +22,51 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-from app import models, views, cli
+def init_scheduler(notification_service):
+    with app.app_context():
+        try:
+            scheduler = BackgroundScheduler()
+            
+            scheduler.add_job(
+                notification_service.check_upcoming_returns,
+                'interval',
+                hours=12,
+                id='check_upcoming_returns',
+                max_instances=1,
+                replace_existing=True
+            )
+            
+            scheduler.add_job(
+                notification_service.check_overdue_returns,
+                'interval',
+                hours=12,
+                id='check_overdue_returns',
+                max_instances=1,
+                replace_existing=True
+            )
+            
+            scheduler.start()
+            logger.info("Scheduler started successfully")
+            
+            def cleanup_scheduler():
+                scheduler.shutdown()
+                logger.info("Scheduler shut down successfully")
+            
+            atexit.register(cleanup_scheduler)
+            
+        except Exception as e:
+            logger.error(f"Error initializing scheduler: {str(e)}")
+            raise
+
+
+from app import models
+
+
+from app.notification_service import NotificationService
+
+
+from app import views, cli
 
 if __name__ == '__main__':
+    init_scheduler(NotificationService)
     app.run()
