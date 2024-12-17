@@ -5,62 +5,30 @@ import BookCover from "@/components/ui/BookCover";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { LoanHistoryDialog } from "@/components/ui/LoanHistoryDialog";
-
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-  genre: string;
-  category: string;
-  release_date: string;
-  description: string;
-  image_url: string;
-}
-
-interface Sample {
-  id: number;
-  unique_code: string;
-  status: "disponible" | "emprunté" | "réservé" | "indisponible";
-  localization: string | null;
-}
-
-interface Borrow {
-  id: number;
-  begin_date: string;
-  end_date: string;
-  return_date: string | null;
-  status: "en cours" | "terminé" | "en retard" | "annulé";
-  user: {
-    id: number;
-    lastname: string;
-    firstname: string;
-  };
-}
+import { useUser } from "@/hooks/UseUser";
+import { IBook, IBorrow, ISample } from '@/types';
 
 export default function BookDetails() {
+  const { user } = useUser();
   const router = useRouter();
   const { id } = router.query;
-  const [book, setBook] = useState<Book | null>(null);
-  const [samples, setSamples] = useState<Sample[]>([]);
+  const [book, setBook] = useState<IBook | null>(null);
+  const [samples, setSamples] = useState<ISample[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [borrows, setBorrows] = useState<Borrow[]>([]);
-  const [selectedSample, setSelectedSample] =
-    useState<Sample | null>(null);
+  const [borrows, setBorrows] = useState<IBorrow[]>([]);
+  const [selectedSample, setSelectedSample] = useState<ISample | null>(null);
   const [borrowsLoading, setborrowsLoading] = useState(false);
 
-  const loadEmpruntHistory = async (exemplaire: Sample) => {
+  const loadEmpruntHistory = async (exemplaire: ISample) => {
     setSelectedSample(exemplaire);
     setDialogOpen(true);
     setborrowsLoading(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/exemplaires/${exemplaire.id}/emprunts`
-      );
-      if (!response.ok)
-        throw new Error("Erreur lors de la récupération des emprunts");
+      const response = await fetch(`http://localhost:5000/exemplaires/${exemplaire.id}/emprunts`);
+      if (!response.ok) throw new Error("Erreur lors de la récupération des emprunts");
       const data = await response.json();
       setBorrows(data);
     } catch (error) {
@@ -179,8 +147,8 @@ export default function BookDetails() {
               )}
               {book?.description && (
                 <p className="text-zinc-400 px-2 py-1">
-                <strong className="text-zinc-200">Description:</strong>{" "}
-                {book.description}
+                  <strong className="text-zinc-200">Description:</strong>{" "}
+                  {book.description}
                 </p>
               )}
             </div>
@@ -188,44 +156,48 @@ export default function BookDetails() {
         </div>
 
 
-        <Card className="mt-6 bg-zinc-800 p-6">
-          <h2 className="text-xl font-semibold text-zinc-100 mb-4">
-            Exemplaires
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {samples.map((sample) => (
-              <div
-                key={sample.id}
-                className="p-4 bg-zinc-700 border rounded-lg hover:shadow-md transition cursor-pointer"
-                onClick={() => loadEmpruntHistory(sample)}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium truncate text-zinc-100">
-                    {sample.unique_code}
-                  </span>
-                  <Badge
-                    className={`px-2 py-1 rounded ${sample.status === "disponible"
-                      ? "bg-green-200 text-green-800 border-green-400"
-                      : sample.status === "emprunté"
-                        ? "bg-yellow-200 text-yellow-800 border-yellow-400"
-                        : sample.status === "réservé"
-                          ? "bg-blue-200 text-blue-800 border-blue-400"
-                          : "bg-red-200 text-red-800 border-red-400"
-                      }`}
-                  >
-                    {sample.status}
-                  </Badge>
+        {user.loggedIn && (
+          <Card className="mt-6 bg-zinc-800 p-6">
+            <h2 className="text-xl font-semibold text-zinc-100 mb-4">
+              Exemplaires
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {samples.map((sample) => (
+                <div
+                  key={sample.id}
+                  className="p-4 bg-zinc-700 border rounded-lg hover:shadow-md transition cursor-pointer"
+                  onClick={() => loadEmpruntHistory(sample)}
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-medium truncate text-zinc-100">
+                      {sample.unique_code}
+                    </span>
+                    <Badge
+                      className={`px-2 py-1 rounded ${sample.status === "disponible"
+                        ? "bg-green-200 text-green-800 border-green-400"
+                        : sample.status === "emprunté"
+                          ? "bg-yellow-200 text-yellow-800 border-yellow-400"
+                          : sample.status === "réservé"
+                            ? "bg-blue-200 text-blue-800 border-blue-400"
+                            : "bg-red-200 text-red-800 border-red-400"
+                        }`}
+                    >
+                      {sample.status}
+                    </Badge>
+                  </div>
+                  {sample.localization && (
+                    <p className="text-sm text-zinc-400 truncate">
+                      {sample.localization}
+                    </p>
+                  )}
                 </div>
-                {sample.localization && (
-                  <p className="text-sm text-zinc-400 truncate">
-                    {sample.localization}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </Card>
+              ))}
+            </div>
+          </Card>
+        )}
       </div>
+
+
       <LoanHistoryDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
