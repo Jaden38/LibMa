@@ -3,12 +3,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FaUser, FaUserPlus, FaBook } from "react-icons/fa";
-import NotificationComponent from "@/components/ui/NotificationsComponent";
+import { useUser } from "@/hooks/UseUser";
+import { DoorOpen, UserPlus, User, Book, BookCopy } from "lucide-react";
+import { IBook } from "@/types";
 
 export default function Home() {
+  const { user, logout } = useUser();
   const router = useRouter();
-  const [Books, setBooks] = useState<Book[]>([]);
-  const [filteredBooks, setFilteredBooks] = useState<Book[]>([]);
+  const [Books, setBooks] = useState<IBook[]>([]);
+  const [filteredBooks, setFilteredBooks] = useState<IBook[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [tagColors, setTagColors] = useState<{ [key: string]: string }>({});
@@ -41,7 +44,7 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  const generateTagColors = (data: Book[]) => {
+  const generateTagColors = (data: IBook[]) => {
     const colors = [
       "bg-pink-200 text-pink-800 border-pink-400",
       "bg-blue-200 text-blue-800 border-blue-400",
@@ -117,15 +120,48 @@ export default function Home() {
       <div className="flex justify-between items-center mb-12">
         <h1 className="text-3xl font-extrabold text-zinc-100">LibMa</h1>
         <div className="flex space-x-4">
-          <Link href="/profile">
-            <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
-              <FaUser /> Mon Profil
-            </Button>
-          </Link>
+          {
+            user.loggedIn && (
+              <Link href="/profile">
+                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
+                  <User /> Mon Profil
+                </Button>
+              </Link>
+            )
+          }
+          {
+            user.role === "librarian" && (
+              <Link href="/emprunts">
+                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
+                  <BookCopy /> Voir les demandes d'emprunts
+                </Button>
+              </Link>
+            )
+          }
+          {
+            user.role === "admin" && (
+              <Link href="/gestion">
+                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
+                  <User /> Gérer les libraires
+                </Button>
+              </Link>
+            )
+          }
           <Link href="/auth">
-            <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
-              <FaUserPlus /> Authentification
-            </Button>
+            {
+              !user.loggedIn && (
+                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
+                  <UserPlus /> Authentification
+                </Button>
+              )
+              ||
+              user.loggedIn && (
+                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all"
+                  onClick={(() => logout())}>
+                  <DoorOpen /> Se déconnecter
+                </Button>
+              )
+            }
           </Link>
         </div>
       </div>
@@ -134,6 +170,7 @@ export default function Home() {
         <div className="flex flex-wrap gap-4 items-center">
           <input
             type="text"
+            placeholder="Rechercher un livre..."
             placeholder="Rechercher un livre..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -167,11 +204,15 @@ export default function Home() {
           </select>
         </div>
 
-        <Link href="/add-book">
-          <Button className="inline-flex items-center gap-2 bg-zinc-800 text-zinc-100 px-6 py-3 rounded-lg hover:bg-zinc-700 transition-all">
-            <FaBook /> Ajouter un livre
-          </Button>
-        </Link>
+        {
+          user.role === "Admin" || user.role === "Librarian" && (
+            <Link href="/add-book">
+              <Button className="inline-flex items-center gap-2 bg-zinc-800 text-zinc-100 px-6 py-3 rounded-lg hover:bg-zinc-700 transition-all">
+                <Book /> Ajouter un livre
+              </Button>
+            </Link>
+          )
+        }
       </div>
 
       <section className="bg-zinc-800 p-6 rounded-lg shadow-lg">
@@ -225,11 +266,15 @@ export default function Home() {
                 >
                   Détails
                 </button>
-                <button
-                  className="px-4 my-0.5 rounded-md border border-teal-400 text-teal-400 hover:bg-teal-600 hover:text-zinc-100 transition-all"
-                >
-                  Réserver
-                </button>
+                {
+                  user.loggedIn && (
+                    <button
+                      className="px-4 my-0.5 rounded-md border border-lime-300 text-lime-300 hover:bg-lime-600 hover:text-zinc-100 transition-all"
+                    >
+                      Réserver
+                    </button>
+                  )
+                }
               </div>
             </div>
           ))}
