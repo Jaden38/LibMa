@@ -48,11 +48,9 @@ def refresh_token():
             algorithms=['HS256']
         )
 
-        # Ensure it's a refresh token
         if payload.get('type') != 'refresh':
             return jsonify({'error': 'Invalid refresh token'}), 401
 
-        # Generate new access token
         new_access_token = TokenService.generate_token(
             payload['user_id'],
             payload['role'],
@@ -72,10 +70,7 @@ def refresh_token():
 @auth_bp.route('/logout', methods=['POST'])
 @require_auth
 def logout():
-    # Get current token from Authorization header
     token = request.headers.get('Authorization').split(' ')[1]
-
-    # Blacklist the token
     token_blacklist.blacklist_token(token)
 
     return jsonify({'message': 'Successfully logged out'}), 200

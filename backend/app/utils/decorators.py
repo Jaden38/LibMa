@@ -13,14 +13,12 @@ def require_auth(f):
 
     @wraps(f)
     def decorated(*args, **kwargs):
-        # Token verification logic
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
             return jsonify({'error': 'Missing or invalid token'}), 401
 
         token = auth_header.split(' ')[1]
 
-        # Check if token is blacklisted
         if token_blacklist.is_blacklisted(token):
             return jsonify({'error': 'Token has been revoked'}), 401
 
@@ -35,12 +33,10 @@ def require_auth(f):
         except jwt.InvalidTokenError:
             return jsonify({'error': 'Invalid token'}), 401
 
-        # Verify user exists and is active
         user = User.query.get(payload['user_id'])
         if not user or user.user_status != 'actif':
             return jsonify({'error': 'User not found or inactive'}), 403
 
-        # Store user info in Flask's g object
         g.user_id = payload['user_id']
         g.user_role = payload['role']
 
