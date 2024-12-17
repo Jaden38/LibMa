@@ -4,9 +4,9 @@ from app.models import Borrow, Sample
 import logging
 
 logger = logging.getLogger(__name__)
-borrows_bp = Blueprint('borrows', __name__)
+samples_bp = Blueprint('samples', __name__)
 
-@borrows_bp.route("/exemplaires/<int:id>/emprunts")
+@samples_bp.route("/<int:id>/emprunts")
 def get_borrowed_sample(id):
     try:
         borrows = Borrow.query.filter_by(sample_id=id).order_by(Sample.begin_date.desc()).all()

@@ -76,12 +76,12 @@ from app.services.notification_service import NotificationService
 
 from app.routes.auth import auth_bp
 from app.routes.books import books_bp
-from app.routes.borrows import borrows_bp
+from app.routes.samples import samples_bp
 from app.routes.notifications import notifications_bp
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(books_bp, url_prefix='/livres')
-app.register_blueprint(borrows_bp, url_prefix='/emprunts')
+app.register_blueprint(samples_bp, url_prefix='/exemplaires')
 app.register_blueprint(notifications_bp, url_prefix='/notifications')
 
 from app import cli
