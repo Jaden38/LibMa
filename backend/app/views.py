@@ -1,7 +1,8 @@
 from app import app, db
-from app.models import Book, Sample, Borrow, Notification
 from flask import jsonify, Response
 import logging, time, json
+from app.models import Book, Sample, Borrow, Notification
+from app.notification_service import NotificationService
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
