@@ -45,7 +45,7 @@ export default function Home() {
         }
       })
       .catch((err) => {
-        console.error("Erreur lors de la récupération des Books:", err);
+        console.error("Erreur lors de la récupération des livres:", err);
         setError(err.message);
       })
       .finally(() => setLoading(false));
@@ -145,7 +145,7 @@ export default function Home() {
         <div className="flex flex-wrap gap-4 items-center">
           <input
             type="text"
-            placeholder="Rechercher un Book..."
+            placeholder="Rechercher un livre..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -180,13 +180,13 @@ export default function Home() {
 
         <Link href="/add-book">
           <Button className="inline-flex items-center gap-2 bg-zinc-800 text-zinc-100 px-6 py-3 rounded-lg hover:bg-zinc-700 transition-all">
-            <FaBook /> Ajouter un Book
+            <FaBook /> Ajouter un livre
           </Button>
         </Link>
       </div>
 
       <section className="bg-zinc-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-6 text-zinc-200">Catalogue des Books</h2>
+        <h2 className="text-2xl font-bold text-center mb-6 text-zinc-200">Catalogue des livres</h2>
 
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {filteredBooks.map((Book) => (
