@@ -14,7 +14,7 @@ def format_sse(data: str, event=None) -> str:
         msg = f'event: {event}\n{msg}'
     return f'{msg}\n'
 
-@notifications_bp.route('/notifications/stream/<int:user_id>')
+@notifications_bp.route('/stream/<int:user_id>')
 def stream_notifications(user_id):
     def event_stream(user_id):
         last_check = time.time()
@@ -50,7 +50,7 @@ def stream_notifications(user_id):
         }
     )
 
-@notifications_bp.route('/notifications/<int:user_id>')
+@notifications_bp.route('/<int:user_id>')
 def get_user_notifications(user_id):
     try:
         notifications = Notification.query.filter_by(
@@ -71,7 +71,7 @@ def get_user_notifications(user_id):
         logger.error(f"Error fetching notifications: {str(e)}")
         return jsonify({'error': 'Database error', 'message': str(e)}), 500
 
-@notifications_bp.route('/notifications/<int:notification_id>/mark-read', methods=['POST'])
+@notifications_bp.route('/<int:notification_id>/mark-read', methods=['POST'])
 def mark_notification_read(notification_id):
     try:
         notification = Notification.query.get_or_404(notification_id)

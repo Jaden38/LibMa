@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 import pymysql
 from dotenv import load_dotenv
 import os
@@ -17,6 +18,14 @@ pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
 
+CORS(app, resources={
+    r"/*": {
+        "origins": ["http://localhost:3000"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
+
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT', 3306)}/{os.getenv('MYSQL_DATABASE')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -31,7 +40,8 @@ limiter = Limiter(
 def init_scheduler(notification_service):
     with app.app_context():
         try:
-            scheduler = BackgroundScheduler()
+            scheduler = BackgroundScheduler()         
+            
             scheduler.add_job(
                 notification_service.check_upcoming_returns,
                 'interval',
@@ -39,7 +49,7 @@ def init_scheduler(notification_service):
                 id='check_upcoming_returns',
                 max_instances=1,
                 replace_existing=True
-            )
+            ) 
             scheduler.add_job(
                 notification_service.check_overdue_returns,
                 'interval',
@@ -47,7 +57,7 @@ def init_scheduler(notification_service):
                 id='check_overdue_returns',
                 max_instances=1,
                 replace_existing=True
-            )
+            )         
             scheduler.start()
             logger.info("Scheduler started successfully")
             
@@ -66,14 +76,12 @@ from app.services.notification_service import NotificationService
 
 from app.routes.auth import auth_bp
 from app.routes.books import books_bp
-from app.routes.samples import samples_bp
 from app.routes.borrows import borrows_bp
 from app.routes.notifications import notifications_bp
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
-app.register_blueprint(books_bp, url_prefix='/library/books')
-app.register_blueprint(samples_bp, url_prefix='/library/samples')
-app.register_blueprint(borrows_bp, url_prefix='/library/borrows')
+app.register_blueprint(books_bp, url_prefix='/livres')
+app.register_blueprint(borrows_bp, url_prefix='/emprunts')
 app.register_blueprint(notifications_bp, url_prefix='/notifications')
 
 from app import cli
