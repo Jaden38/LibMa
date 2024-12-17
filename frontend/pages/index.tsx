@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/Button";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FaUser, FaUserPlus, FaBook } from "react-icons/fa";
 import { useUser } from "@/hooks/UseUser";
 import { DoorOpen, UserPlus, User, Book, BookCopy } from "lucide-react";
 import { IBook } from "@/types";
