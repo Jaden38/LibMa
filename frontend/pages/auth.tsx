@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/router";
+import { useUser } from "@/hooks/UseUser";
 
 const AuthPage: React.FC = () => {
+  const { user, login } = useUser();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -49,11 +51,21 @@ const AuthPage: React.FC = () => {
         }
       }
 
-      localStorage.setItem('accessToken', data.access_token);
-      localStorage.setItem('refreshToken', data.refresh_token);
-      localStorage.setItem('userId', data.user_id);
-      localStorage.setItem('userRole', data.user_role);
-      localStorage.setItem('userInfo', JSON.stringify(data.user));
+      const userData = {
+        id: data.user_id,
+        role: data.user_role,
+        ...data.user
+      };
+
+      const tokens = {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token
+      };
+
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('tokens', JSON.stringify(tokens));
+
+      login({ tokens, user: userData });
 
       router.push('/');
     } catch (err) {
@@ -61,7 +73,7 @@ const AuthPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-};
+  };
   const handleRegister = async () => {
     if (!email || !password || !confirmPassword || !firstname || !lastname) {
       setError("Tous les champs sont requis.");
@@ -117,11 +129,10 @@ const AuthPage: React.FC = () => {
               setActiveTab("login");
               setError(null);
             }}
-            className={`text-sm font-medium px-4 py-2 rounded-md ${
-              activeTab === "login"
-                ? "bg-zinc-700 text-zinc-100"
-                : "text-zinc-400 hover:text-zinc-100"
-            }`}
+            className={`text-sm font-medium px-4 py-2 rounded-md ${activeTab === "login"
+              ? "bg-zinc-700 text-zinc-100"
+              : "text-zinc-400 hover:text-zinc-100"
+              }`}
           >
             Se connecter
           </button>
@@ -130,11 +141,10 @@ const AuthPage: React.FC = () => {
               setActiveTab("register");
               setError(null);
             }}
-            className={`text-sm font-medium px-4 py-2 rounded-md ${
-              activeTab === "register"
-                ? "bg-zinc-700 text-zinc-100"
-                : "text-zinc-400 hover:text-zinc-100"
-            }`}
+            className={`text-sm font-medium px-4 py-2 rounded-md ${activeTab === "register"
+              ? "bg-zinc-700 text-zinc-100"
+              : "text-zinc-400 hover:text-zinc-100"
+              }`}
           >
             S'inscrire
           </button>
@@ -144,7 +154,7 @@ const AuthPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-center mb-4">
             {activeTab === "login" ? "Connexion" : "Inscription"}
           </h1>
-          
+
           {activeTab === "register" && (
             <>
               <div>
@@ -169,7 +179,7 @@ const AuthPage: React.FC = () => {
               </div>
             </>
           )}
-          
+
           <div>
             <Input
               type="email"
@@ -217,8 +227,8 @@ const AuthPage: React.FC = () => {
             {isLoading
               ? "Chargement..."
               : activeTab === "login"
-              ? "Se connecter"
-              : "S'inscrire"}
+                ? "Se connecter"
+                : "S'inscrire"}
           </Button>
         </form>
       </div>
