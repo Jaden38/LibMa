@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 import pymysql
 from dotenv import load_dotenv
 import os
@@ -19,19 +20,19 @@ pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
 
+CORS(app, resources={
+    r"/*": {
+        "origins": ["http://localhost:3000"],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
+
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT', 3306)}/{os.getenv('MYSQL_DATABASE')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Rate limiting
-limiter = Limiter(
-    app=app,
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
-)
-
-# Rate limiting
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
@@ -76,19 +77,23 @@ def init_scheduler(notification_service):
 
 
 from app import models
-
-
-from app.notification_service import NotificationService
-
-
-from app import views, cli
-from app import models, views, cli
+from app.services.notification_service import NotificationService
 
 from app.routes.auth import auth_bp
-from app.routes.library import library_bp 
+from app.routes.books import books_bp
+from app.routes.samples import samples_bp
+from app.routes.notifications import notifications_bp
+from app.routes.librarians import librarians_bp
+
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
-app.register_blueprint(library_bp, url_prefix='/library')
+app.register_blueprint(books_bp, url_prefix='/livres')
+app.register_blueprint(samples_bp, url_prefix='/exemplaires')
+app.register_blueprint(notifications_bp, url_prefix='/notifications')
+app.register_blueprint(librarians_bp, url_prefix='/libraires')
+
+from app import cli
+
 
 if __name__ == '__main__':
     init_scheduler(NotificationService)
