@@ -1,10 +1,11 @@
 import os
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from app.models import User
 from app.services.token_service import TokenService
 from app.utils.decorators import require_auth
 from app.utils.token_blacklist import token_blacklist
+from app.utils.user_factory import UserFactory
 import jwt
 
 from app import db
@@ -22,7 +23,6 @@ def login():
     user = User.query.filter_by(mail=username).first()
 
     if user and user.check_password(password):
-        # Generate tokens
         access_token = TokenService.generate_token(user.user_id, user.user_role, 'access')
         refresh_token = TokenService.generate_token(user.user_id, user.user_role, 'refresh')
 
@@ -74,3 +74,57 @@ def logout():
     token_blacklist.blacklist_token(token)
 
     return jsonify({'message': 'Successfully logged out'}), 200
+
+
+
+@auth_bp.route('/register', methods=['POST'])
+@require_auth(optional=True)
+def register():
+    data = request.get_json()
+    
+    if User.query.filter_by(mail=data.get('email')).first():
+        return jsonify({'error': 'Email already registered'}), 409
+        
+    try:
+        UserFactory.validate_user_data(
+            email=data.get('email'),
+            password=data.get('password'),
+            firstname=data.get('firstname'),
+            lastname=data.get('lastname')
+        )
+        
+        new_user = UserFactory.create_user(
+            email=data.get('email'),
+            password=data.get('password'),
+            firstname=data.get('firstname'),
+            lastname=data.get('lastname'),
+            role=data.get('role', 'membre'),
+            creator_role=g.user_role if hasattr(g, 'user_role') and g.user_role else None
+        )
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+        
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Registration failed'}), 500
+
+    if not hasattr(g, 'user_role') or not g.user_role:
+        access_token = TokenService.generate_token(new_user.user_id, new_user.user_role, 'access')
+        refresh_token = TokenService.generate_token(new_user.user_id, new_user.user_role, 'refresh')
+        
+        return jsonify({
+            'message': 'User registered successfully',
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'user_id': new_user.user_id,
+            'user_role': new_user.user_role
+        }), 201
+    
+    return jsonify({
+        'message': 'User created successfully',
+        'user_id': new_user.user_id,
+        'user_role': new_user.user_role
+    }), 201
