@@ -10,10 +10,12 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 import logging
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
+
 pymysql.install_as_MySQLdb()
 
 app = Flask(__name__)
@@ -40,7 +42,7 @@ limiter = Limiter(
 def init_scheduler(notification_service):
     with app.app_context():
         try:
-            scheduler = BackgroundScheduler()         
+            scheduler = BackgroundScheduler()
             
             scheduler.add_job(
                 notification_service.check_upcoming_returns,
@@ -49,7 +51,8 @@ def init_scheduler(notification_service):
                 id='check_upcoming_returns',
                 max_instances=1,
                 replace_existing=True
-            ) 
+            )
+            
             scheduler.add_job(
                 notification_service.check_overdue_returns,
                 'interval',
@@ -57,7 +60,8 @@ def init_scheduler(notification_service):
                 id='check_overdue_returns',
                 max_instances=1,
                 replace_existing=True
-            )         
+            )
+            
             scheduler.start()
             logger.info("Scheduler started successfully")
             
@@ -71,6 +75,7 @@ def init_scheduler(notification_service):
             logger.error(f"Error initializing scheduler: {str(e)}")
             raise
 
+
 from app import models
 from app.services.notification_service import NotificationService
 
@@ -78,13 +83,17 @@ from app.routes.auth import auth_bp
 from app.routes.books import books_bp
 from app.routes.samples import samples_bp
 from app.routes.notifications import notifications_bp
+from app.routes.librarians import librarians_bp
+
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(books_bp, url_prefix='/livres')
 app.register_blueprint(samples_bp, url_prefix='/exemplaires')
 app.register_blueprint(notifications_bp, url_prefix='/notifications')
+app.register_blueprint(librarians_bp, url_prefix='/libraires')
 
 from app import cli
+
 
 if __name__ == '__main__':
     init_scheduler(NotificationService)
