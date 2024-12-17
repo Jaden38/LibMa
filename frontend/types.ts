@@ -9,6 +9,7 @@ export interface IBorrow {
     firstname: string;
   };
   return_date: string | null;
+  sample: IBook;
 }
 
 export interface IBook {
@@ -27,4 +28,22 @@ export interface ISample {
   unique_code: string;
   status: "disponible" | "emprunté" | "réservé" | "indisponible";
   localization: string | null;
+}
+
+export interface IUser {
+  id: number;
+  firstname: string;
+  lastname: string;
+  email: string;
+  role: "membre" | "bibliothecaire" | "administrateur";
+}
+
+export interface AuthTokens {
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface AuthResponse {
+  tokens: AuthTokens;
+  user: IUser;
 }
