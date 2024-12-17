@@ -1,56 +1,58 @@
-import React, { createContext, useState, ReactNode } from 'react';
-
-interface User {
-  loggedIn: boolean;
-  role: string | null;
-}
+// UserContext.tsx
+import React, { createContext, ReactNode, useState, useEffect } from 'react';
+import { AuthResponse, IUser, AuthTokens } from '@/types';
 
 interface UserContextType {
-  user: User;
-  login: (token: string) => void;
+  user: IUser | null;
+  tokens: AuthTokens | null;
+  isLoggedIn: boolean;
+  login: (data: AuthResponse) => void;
   logout: () => void;
 }
 
-export const UserContext = createContext<UserContextType>({
-  user: { loggedIn: false, role: null },
-  login: () => {
-    throw new Error('UserContext login method must be used within a UserProvider');
-  },
-  logout: () => {
-    throw new Error('UserContext logout method must be used within a UserProvider');
-  }
-});
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 interface UserProviderProps {
   children: ReactNode;
 }
 
 export const UserProvider = ({ children }: UserProviderProps) => {
-  const [user, setUser] = useState<User>({ loggedIn: false, role: null });
+  const [user, setUser] = useState<IUser | null>(null);
+  const [tokens, setTokens] = useState<AuthTokens | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  const login = (token: string) => {
-    const userData = decodeJwt(token);
-    setUser({ loggedIn: true, role: userData.role });
+  // Charger les données depuis le localStorage au montage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    const storedTokens = localStorage.getItem('tokens');
+    if (storedUser && storedTokens) {
+      setUser(JSON.parse(storedUser));
+      setTokens(JSON.parse(storedTokens));
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  // Fonction de login
+  const login = (data: AuthResponse) => {
+    setUser(data.user);
+    setTokens(data.tokens);
+    setIsLoggedIn(true);
+    // Stocker dans le localStorage pour persistance
+    localStorage.setItem('user', JSON.stringify(data.user));
+    localStorage.setItem('tokens', JSON.stringify(data.tokens));
   };
 
+  // Fonction de logout
   const logout = () => {
-    setUser({ loggedIn: false, role: null });
-  };
-
-  const decodeJwt = (token: string) => {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
+    setUser(null);
+    setTokens(null);
+    setIsLoggedIn(false);
+    localStorage.removeItem('user');
+    localStorage.removeItem('tokens');
   };
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider value={{ user, tokens, isLoggedIn, login, logout }}>
       {children}
     </UserContext.Provider>
   );
