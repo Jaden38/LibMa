@@ -149,5 +149,5 @@ class User(db.Model):
     user_status = db.Column(db.Enum('actif', 'inactif', 'suspendu'), server_default=db.FetchedValue())
 
     def check_password(self, password):
-        # Compare the provided password with the stored hashed password
-        return self.user_password == password
+        """Check if the provided password matches the stored hash."""
+        return check_password_hash(self.user_password, password)
