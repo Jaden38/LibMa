@@ -1,5 +1,4 @@
 import os
-
 import jwt
 from datetime import datetime, timezone
 from flask import current_app
