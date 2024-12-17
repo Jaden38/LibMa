@@ -15,14 +15,25 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
 
-    user = User.query.filter_by(mail=username).first()
+    if not username or not password:
+        return jsonify({'error': 'Email and password are required'}), 400
 
-    if user and user.check_password(password):
+    try:
+        user = User.query.filter_by(mail=username).first()
+
+        if not user:
+            return jsonify({'error': 'Invalid credentials'}), 401
+
+        if user.user_status != 'actif':
+            return jsonify({'error': 'Account is not active'}), 403
+
+        if not user.check_password(password):
+            return jsonify({'error': 'Invalid credentials'}), 401
+
         access_token = TokenService.generate_token(user.user_id, user.user_role, 'access')
         refresh_token = TokenService.generate_token(user.user_id, user.user_role, 'refresh')
 
@@ -30,12 +41,17 @@ def login():
             'access_token': access_token,
             'refresh_token': refresh_token,
             'user_id': user.user_id,
-            'user_role': user.user_role
+            'user_role': user.user_role,
+            'user': {
+                'firstname': user.firstname,
+                'lastname': user.lastname,
+                'email': user.mail
+            }
         }), 200
 
-    return jsonify({'error': 'Invalid credentials'}), 401
-
-
+    except Exception as e:
+        return jsonify({'error': 'An error occurred during login'}), 500
+    
 @auth_bp.route('/refresh', methods=['POST'])
 def refresh_token():
     data = request.get_json()

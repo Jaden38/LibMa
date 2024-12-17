@@ -37,14 +37,23 @@ const AuthPage: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Échec de la connexion');
+        switch (response.status) {
+          case 400:
+            throw new Error('Email et mot de passe requis');
+          case 401:
+            throw new Error('Email ou mot de passe incorrect');
+          case 403:
+            throw new Error('Compte inactif');
+          default:
+            throw new Error(data.error || 'Échec de la connexion');
+        }
       }
 
-      // Store tokens in localStorage
       localStorage.setItem('accessToken', data.access_token);
       localStorage.setItem('refreshToken', data.refresh_token);
       localStorage.setItem('userId', data.user_id);
       localStorage.setItem('userRole', data.user_role);
+      localStorage.setItem('userInfo', JSON.stringify(data.user));
 
       router.push('/');
     } catch (err) {
@@ -52,8 +61,7 @@ const AuthPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
+};
   const handleRegister = async () => {
     if (!email || !password || !confirmPassword || !firstname || !lastname) {
       setError("Tous les champs sont requis.");
