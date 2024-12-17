@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { useUser } from "@/hooks/UseUser";
 
 export default function Profile() {
-  const [email, setEmail] = useState("utilisateur@example.com");
-  const [password, setPassword] = useState("");
+  const {user} = useUser();
+  const [mail, setMail] = useState(user?.email);
+    const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export default function Profile() {
   ];
 
   const handleUpdateProfile = () => {
-    if (!email || !password || !confirmPassword) {
+    if (!mail || !password || !confirmPassword) {
       setError("Tous les champs sont requis.");
       return;
     }
@@ -51,15 +53,15 @@ export default function Profile() {
       </div>
 
       <div className=" ml-8 mr-8 mb-8 flex-grow bg-zinc-800 p-8 rounded-lg shadow-lg pt-12">
-        <h2 className="text-2xl font-semibold text-zinc-100 mb-4">Bienvenue {email}</h2>
+        <h2 className="text-2xl font-semibold text-zinc-100 mb-4">Bienvenue {user?.firstname}</h2>
         
         <form onSubmit={(e) => e.preventDefault()} className="w-full space-y-4 space-x-0 mt-12 ml-4">
           <div className="flex flex-col items-start space-y-4">
             <input
               type="email"
               placeholder="Adresse email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={user?.email}
+              onChange={(e) => setMail(e.target.value)}
               className="w-fit bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-300 ease-in-out"
               aria-label="Adresse email"
             />
@@ -87,7 +89,7 @@ export default function Profile() {
 
             <Button
               onClick={handleUpdateProfile}
-              disabled={!email || !password || !confirmPassword}
+              disabled={!mail || !password || !confirmPassword}
               className="py-3 px-6 bg-blue-600 text-sm text-zinc-100 rounded-md hover:bg-blue-500 hover:scale-105 hover:shadow-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
             >
               Mettre à jour le profil
