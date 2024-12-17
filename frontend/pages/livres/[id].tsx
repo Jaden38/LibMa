@@ -9,7 +9,7 @@ import { useUser } from "@/hooks/UseUser";
 import { IBook, IBorrow, ISample } from '@/types';
 
 export default function BookDetails() {
-  const { user } = useUser();
+  const { user, isLoggedIn } = useUser();
   const router = useRouter();
   const { id } = router.query;
   const [book, setBook] = useState<IBook | null>(null);
@@ -156,7 +156,7 @@ export default function BookDetails() {
         </div>
 
 
-        {user.loggedIn && (
+        {isLoggedIn && (
           <Card className="mt-6 bg-zinc-800 p-6">
             <h2 className="text-xl font-semibold text-zinc-100 mb-4">
               Exemplaires
