@@ -44,7 +44,7 @@ export default function Home() {
         }
       })
       .catch((err) => {
-        console.error("Erreur lors de la récupération des Books:", err);
+        console.error("Erreur lors de la récupération des livres:", err);
         setError(err.message);
       })
       .finally(() => setLoading(false));
