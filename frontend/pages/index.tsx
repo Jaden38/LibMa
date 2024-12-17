@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FaUser, FaUserPlus, FaBook } from "react-icons/fa";
+import NotificationComponent from "@/components/ui/NotificationsComponent";
 
 interface Book {
   id: number;
@@ -126,6 +127,7 @@ export default function Home() {
       <div className="flex justify-between items-center mb-12">
         <h1 className="text-3xl font-extrabold text-zinc-100">LibMa</h1>
         <div className="flex space-x-4">
+        <NotificationComponent userId={4} />
           <Link href="/profile">
             <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
               <FaUser /> Mon Profil

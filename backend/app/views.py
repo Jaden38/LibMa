@@ -1,5 +1,5 @@
 from app import app, db
-from app.models import Book, Sample, Borrow
+from app.models import Book, Sample, Borrow, Notification
 from flask import jsonify
 import logging
 
@@ -157,3 +157,36 @@ def internal_error(error):
         ),
         500,
     )
+
+
+@app.route('/notifications/<int:user_id>')
+def get_user_notifications(user_id):
+    try:
+        notifications = Notification.query.filter_by(
+            user_id=user_id,
+            viewed=False
+        ).order_by(
+            Notification.creation_date.desc()
+        ).all()
+
+        result = [{
+            'id': notif.notification_id,
+            'type': notif.notification_type,
+            'message': notif.notification_message,
+            'creation_date': notif.creation_date.isoformat(),
+            'viewed': bool(notif.viewed)
+        } for notif in notifications]
+
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': 'Database error', 'message': str(e)}), 500
+
+@app.route('/notifications/<int:notification_id>/mark-read', methods=['POST'])
+def mark_notification_read(notification_id):
+    try:
+        notification = Notification.query.get_or_404(notification_id)
+        notification.viewed = True
+        db.session.commit()
+        return jsonify({'message': 'Notification marked as read'})
+    except Exception as e:
+        return jsonify({'error': 'Database error', 'message': str(e)}), 500
