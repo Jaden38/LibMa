@@ -84,14 +84,11 @@ from app.notification_service import NotificationService
 from app import views, cli
 from app import models, views, cli
 
-# Register blueprints
 from app.routes.auth import auth_bp
-#from app.routes.user import user_bp  # not implemented yet
-from app.routes.library import library_bp #implementation example based on view.py
+from app.routes.library import library_bp 
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
-#app.register_blueprint(user_bp, url_prefix='/users')  # not implemented yet
-app.register_blueprint(library_bp, url_prefix='/library') #implementation example based on view.py
+app.register_blueprint(library_bp, url_prefix='/library')
 
 if __name__ == '__main__':
     init_scheduler(NotificationService)

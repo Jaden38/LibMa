@@ -6,10 +6,8 @@ load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-# Security settings
 SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret-key')
 
-# Database configuration
 MYSQL_USER = os.getenv('MYSQL_USER')
 MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD')
 MYSQL_HOST = os.getenv('MYSQL_HOST')
@@ -21,6 +19,5 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 PORT = int(os.getenv('FLASK_PORT', 5000))
 
-# JWT configuration
 JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)

@@ -13,10 +13,8 @@ from app.utils.decorators import require_auth, require_role
 from sqlalchemy.orm import joinedload
 import logging
 
-# Create a blueprint for library-related routes
 library_bp = Blueprint('library', __name__)
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 
@@ -141,21 +139,18 @@ def get_sample_borrows(id):
         return jsonify({"error": "Database Error", "message": str(e)}), 500
 
 
-# Add a new route for borrowing a book (example of a protected route)
 @library_bp.route("/borrow", methods=['POST'])
 @require_auth
 def borrow_book():
     try:
         data = request.get_json()
         sample_id = data.get('sample_id')
-        user_id = request.g.user_id  # Get user ID from the authenticated request
+        user_id = request.g.user_id
 
-        # Check if sample exists and is available
         sample = Sample.query.get_or_404(sample_id)
         if sample.sample_status != 'available':
             return jsonify({"error": "Sample not available for borrowing"}), 400
 
-        # Create new borrow record
         new_borrow = Borrow(
             sample_id=sample_id,
             user_id=user_id,
@@ -163,7 +158,6 @@ def borrow_book():
             status='active'
         )
 
-        # Update sample status
         sample.sample_status = 'borrowed'
 
         db.session.add(new_borrow)
@@ -180,7 +174,6 @@ def borrow_book():
         return jsonify({"error": "Borrowing failed", "message": str(e)}), 500
 
 
-# Global error handlers can be moved to a separate error handling module
 @library_bp.errorhandler(404)
 def not_found_error(error):
     return jsonify({

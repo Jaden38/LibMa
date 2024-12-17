@@ -14,7 +14,7 @@ class TokenService:
 
         if token_type == 'access':
             expiration = datetime.now(timezone.utc) + JWT_ACCESS_TOKEN_EXPIRES
-        else:  # refresh token
+        else:
             expiration = datetime.now(timezone.utc) + JWT_REFRESH_TOKEN_EXPIRES
 
         payload = {
