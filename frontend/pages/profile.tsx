@@ -4,10 +4,75 @@ import { useUser } from "@/hooks/UseUser";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
 import { ArrowLeft } from "lucide-react";
+import { useBorrows } from "@/context/UseBorrows";
+import { IBorrow, IBorrowHistory } from "@/types";
+
+const processBorrowHistory = (borrowRequests: IBorrow[], userId: number): IBorrowHistory => {
+  const today = new Date();
+
+  return borrowRequests
+    .filter(borrow => borrow.user.id === userId)
+    .reduce<IBorrowHistory>(
+      (result, borrow) => {
+
+
+
+        const isPastBorrow =
+          borrow.return_date !== null ||
+          borrow.status === "terminé" ||
+          borrow.status === "annulé";
+
+        if (isPastBorrow) {
+          result.pastBorrows.push(borrow);
+        } else {
+
+          if (borrow.end_date) {
+            const endDate = new Date(borrow.end_date);
+            if (endDate < today && borrow.status === "en cours") {
+              borrow.status = "en retard";
+            }
+          }
+          result.currentBorrows.push(borrow);
+        }
+
+        return result;
+      },
+      { currentBorrows: [], pastBorrows: [] }
+    );
+};
+
+const formatDate = (dateString: string | null): string => {
+  if (!dateString) return 'Non spécifié';
+
+  try {
+    const date = new Date(dateString);
+
+    // Options pour le formatteur de date
+    const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return dateFormatter.format(date)
+      .replace(':', 'h')
+      .replace(' à ', ' à ');
+  } catch (e) {
+    console.error('Erreur de formatage de date:', e);
+    return dateString;
+  }
+};
 
 export default function Profile() {
   const { user } = useUser();
   const router = useRouter();
+  const { borrowRequests } = useBorrows();
+
+  const borrowHistory = processBorrowHistory(borrowRequests, user?.id ?? 1);
+  const { currentBorrows, pastBorrows } = borrowHistory;
+
 
   const [mail, setMail] = useState(user?.email ?? "");
   const [password, setPassword] = useState("");
@@ -16,16 +81,6 @@ export default function Profile() {
   const [error, setError] = useState<string | null>(null);
   const [newUsername, setNewUsername] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const ongoingBorrowings = [
-    { book: "Le Seigneur des Anneaux", date: "2024-12-01" },
-    { book: "Harry Potter", date: "2024-12-05" },
-  ];
-
-  const borrowingHistory = [
-    { book: "1984", date: "2024-11-20", returnDate: "2024-12-01" },
-    { book: "Le Petit Prince", date: "2024-11-15", returnDate: "2024-11-30" },
-  ];
 
   const handleUpdateProfile = () => {
     if (!mail || !password || !confirmPassword) {
@@ -158,14 +213,14 @@ export default function Profile() {
           <motion.div variants={itemVariants}>
             <h2 className="text-lg font-semibold text-white mb-4 uppercase tracking-wider">Emprunts en cours</h2>
             <div className="space-y-3">
-              {ongoingBorrowings.map((borrowing, index) => (
+              {currentBorrows.map((borrowing, index) => (
                 <motion.div
                   key={index}
                   whileHover={{ scale: 1.02, backgroundColor: "#1f1f1f" }}
                   className="bg-[#1a1a1a] text-white p-4 rounded-md border border-[#2c2c2c] transition-all duration-300"
                 >
-                  <p className="font-semibold text-[#00f1a1]">{borrowing.book}</p>
-                  <p className="text-sm text-gray-400">Emprunté le {borrowing.date}</p>
+                  <p className="font-semibold text-[#00f1a1]">{borrowing.sample.book.title}</p>
+                  <p className="text-sm text-gray-400">Emprunté le {formatDate(borrowing.begin_date)}</p>
                 </motion.div>
               ))}
             </div>
@@ -175,15 +230,15 @@ export default function Profile() {
           <motion.div variants={itemVariants}>
             <h2 className="text-lg font-semibold text-white mb-4 uppercase tracking-wider">Historique des emprunts</h2>
             <div className="space-y-3">
-              {borrowingHistory.map((history, index) => (
+              {pastBorrows.map((history, index) => (
                 <motion.div
                   key={index}
                   whileHover={{ scale: 1.02, backgroundColor: "#1f1f1f" }}
                   className="bg-[#1a1a1a] text-white p-4 rounded-md border border-[#2c2c2c] transition-all duration-300"
                 >
-                  <p className="font-semibold text-[#00f1a1]">{history.book}</p>
+                  <p className="font-semibold text-[#00f1a1]">{history.sample.book.title}</p>
                   <p className="text-sm text-gray-400">
-                    Emprunté le {history.date}, Rendu le {history.returnDate}
+                    Emprunté le {formatDate(history.begin_date)}, Rendu le {formatDate(history.return_date)}
                   </p>
                 </motion.div>
               ))}
