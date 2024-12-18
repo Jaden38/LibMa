@@ -30,7 +30,7 @@ export interface ISample {
   status: "disponible" | "emprunté" | "réservé" | "indisponible";
   procurement_date: string | null;
   localization: string;
-  book_id : number;
+  book_id: number;
   book: IBook;
 }
 
@@ -50,4 +50,9 @@ export interface AuthTokens {
 export interface AuthResponse {
   tokens: AuthTokens;
   user: IUser;
+}
+
+export interface IBorrowHistory {
+  currentBorrows: IBorrow[];
+  pastBorrows: IBorrow[];
 }
