@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/router";
 import { useUser } from "@/hooks/UseUser";
 
 const AuthPage: React.FC = () => {
-  const { user, login } = useUser();
+  const { login } = useUser();
   const router = useRouter();
+
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,10 +27,10 @@ const AuthPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/auth/login', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: email,
@@ -41,39 +43,39 @@ const AuthPage: React.FC = () => {
       if (!response.ok) {
         switch (response.status) {
           case 400:
-            throw new Error('Email et mot de passe requis');
+            throw new Error("Email et mot de passe requis");
           case 401:
-            throw new Error('Email ou mot de passe incorrect');
+            throw new Error("Email ou mot de passe incorrect");
           case 403:
-            throw new Error('Compte inactif');
+            throw new Error("Compte inactif");
           default:
-            throw new Error(data.error || 'Échec de la connexion');
+            throw new Error(data.error || "Échec de la connexion");
         }
       }
 
       const userData = {
         id: data.user_id,
         role: data.user_role,
-        ...data.user
+        ...data.user,
       };
 
       const tokens = {
         access_token: data.access_token,
-        refresh_token: data.refresh_token
+        refresh_token: data.refresh_token,
       };
 
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('tokens', JSON.stringify(tokens));
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("tokens", JSON.stringify(tokens));
 
       login({ tokens, user: userData });
-
-      router.push('/');
+      router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleRegister = async () => {
     if (!email || !password || !confirmPassword || !firstname || !lastname) {
       setError("Tous les champs sont requis.");
@@ -87,10 +89,10 @@ const AuthPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/auth/register', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
@@ -103,116 +105,155 @@ const AuthPage: React.FC = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Échec de l\'inscription');
+        throw new Error(data.error || "Échec de l'inscription");
       }
 
-      // Store tokens in localStorage
-      localStorage.setItem('accessToken', data.access_token);
-      localStorage.setItem('refreshToken', data.refresh_token);
-      localStorage.setItem('userId', data.user_id);
-      localStorage.setItem('userRole', data.user_role);
+      const userData = {
+        id: data.user_id,
+        role: data.user_role,
+        ...data.user,
+      };
 
-      router.push('/');
+      const tokens = {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      };
+
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("tokens", JSON.stringify(tokens));
+
+      login({ tokens, user: userData });
+
+      router.push("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-900 text-zinc-100">
-      <div className="w-full max-w-lg bg-zinc-800 rounded-lg shadow-lg p-6">
-        <div className="flex justify-around mb-6">
-          <button
-            onClick={() => {
-              setActiveTab("login");
-              setError(null);
+    <div
+      className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden"
+      style={{
+        background: "#0d0d0d"
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="bg-[#121212] border border-[#1e1e1e] rounded-lg p-8 max-w-md w-full mx-4 
+                   shadow-[0_0_30px_rgba(0,0,0,0.7)]"
+      >
+        <div className="relative flex justify-between items-center mb-8">
+          <div className="flex w-full">
+            <button
+              onClick={() => {
+                setActiveTab("login");
+                setError(null);
+              }}
+              className={`relative flex-1 text-center py-2 text-sm font-semibold 
+                          transition-colors 
+                          ${activeTab === "login" ? "text-white" : "text-gray-400 hover:text-gray-200"}`}
+            >
+              Se connecter
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("register");
+                setError(null);
+              }}
+              className={`relative flex-1 text-center py-2 text-sm font-semibold 
+                          transition-colors 
+                          ${activeTab === "register" ? "text-white" : "text-gray-400 hover:text-gray-200"}`}
+            >
+              S'inscrire
+            </button>
+          </div>
+          <motion.div
+            layoutId="underline"
+            className="absolute bottom-0 h-[2px] bg-[#00f1a1]"
+            style={{
+              width: "50%",
+              left: activeTab === "login" ? "0%" : "50%",
             }}
-            className={`text-sm font-medium px-4 py-2 rounded-md ${activeTab === "login"
-              ? "bg-zinc-700 text-zinc-100"
-              : "text-zinc-400 hover:text-zinc-100"
-              }`}
-          >
-            Se connecter
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("register");
-              setError(null);
-            }}
-            className={`text-sm font-medium px-4 py-2 rounded-md ${activeTab === "register"
-              ? "bg-zinc-700 text-zinc-100"
-              : "text-zinc-400 hover:text-zinc-100"
-              }`}
-          >
-            S'inscrire
-          </button>
+            transition={{ type: "spring", stiffness: 350, damping: 30 }}
+          />
         </div>
 
-        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-          <h1 className="text-2xl font-bold text-center mb-4">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+          <motion.h1
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-3xl font-bold text-white text-center mb-4"
+          >
             {activeTab === "login" ? "Connexion" : "Inscription"}
-          </h1>
+          </motion.h1>
 
           {activeTab === "register" && (
-            <>
-              <div>
-                <Input
-                  type="text"
-                  placeholder="Nom"
-                  value={lastname}
-                  onChange={(e) => setLastname(e.target.value)}
-                  className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  aria-label="Nom"
-                />
-              </div>
-              <div>
-                <Input
-                  type="text"
-                  placeholder="Prénom"
-                  value={firstname}
-                  onChange={(e) => setFirstname(e.target.value)}
-                  className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  aria-label="Prénom"
-                />
-              </div>
-            </>
-          )}
-
-          <div>
-            <Input
-              type="email"
-              placeholder="Adresse email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              aria-label="Adresse email"
-            />
-          </div>
-          <div>
-            <Input
-              type="password"
-              placeholder="Mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              aria-label="Mot de passe"
-            />
-          </div>
-          {activeTab === "register" && (
-            <div>
+            <div className="grid grid-cols-2 gap-4">
               <Input
-                type="password"
-                placeholder="Confirmer le mot de passe"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-zinc-700 border border-zinc-600 text-sm text-zinc-100 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                aria-label="Confirmer le mot de passe"
+                type="text"
+                placeholder="Nom"
+                value={lastname}
+                onChange={(e) => setLastname(e.target.value)}
+                className="w-full bg-[#1a1a1a] text-white placeholder-gray-400 
+                           rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+                aria-label="Nom"
+              />
+              <Input
+                type="text"
+                placeholder="Prénom"
+                value={firstname}
+                onChange={(e) => setFirstname(e.target.value)}
+                className="w-full bg-[#1a1a1a] text-white placeholder-gray-400 
+                           rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+                aria-label="Prénom"
               />
             </div>
           )}
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+
+          <Input
+            type="email"
+            placeholder="Adresse email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-[#1a1a1a] text-white placeholder-gray-400 
+                       rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+            aria-label="Adresse email"
+          />
+
+          <Input
+            type="password"
+            placeholder="Mot de passe"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-[#1a1a1a] text-white placeholder-gray-400 
+                       rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+            aria-label="Mot de passe"
+          />
+
+          {activeTab === "register" && (
+            <Input
+              type="password"
+              placeholder="Confirmer le mot de passe"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full bg-[#1a1a1a] text-white placeholder-gray-400 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+              aria-label="Confirmer le mot de passe"
+            />
+          )}
+
+          {error && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-red-500 text-sm font-medium text-center"
+            >
+              {error}
+            </motion.p>
+          )}
 
           <Button
             onClick={activeTab === "login" ? handleLogin : handleRegister}
@@ -220,9 +261,12 @@ const AuthPage: React.FC = () => {
               isLoading ||
               !email ||
               !password ||
-              (activeTab === "register" && (!confirmPassword || !firstname || !lastname))
+              (activeTab === "register" &&
+                (!confirmPassword || !firstname || !lastname))
             }
-            className="w-full py-3 bg-blue-600 text-sm text-zinc-100 rounded-md hover:bg-blue-500 transition focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+            className={`w-full py-3 text-white font-semibold rounded-md
+                        transition focus:outline-none focus:ring-2 focus:ring-[#00f1a1]
+                        ${isLoading ? "bg-[#333]" : "bg-[#00f1a1] hover:bg-[#05e799]"}`}
           >
             {isLoading
               ? "Chargement..."
@@ -231,14 +275,16 @@ const AuthPage: React.FC = () => {
                 : "S'inscrire"}
           </Button>
         </form>
-      </div>
+      </motion.div>
 
-      <button
+      <motion.button
         onClick={() => router.push("/")}
-        className="mt-4 px-4 py-2 bg-zinc-800 text-sm text-zinc-100 rounded-md hover:bg-zinc-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.97 }}
+        className="mt-10 px-6 py-3 bg-[#1f1f1f] text-gray-300 font-medium rounded-md hover:text-white hover:bg-[#2a2a2a] transition focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
       >
         Retour à l'accueil
-      </button>
+      </motion.button>
     </div>
   );
 };

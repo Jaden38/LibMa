@@ -122,6 +122,7 @@ def register():
                 g.user_role if hasattr(g, "user_role") and g.user_role else None
             ),
         )
+
     except ValueError as e:
         print(str(e))
         return jsonify({"error": str(e)}), 400

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
 
 interface BookCoverProps {
   imageUrl: string | null;
@@ -18,14 +17,6 @@ const BookCover: React.FC<BookCoverProps> = ({ imageUrl, title, className }) => 
 
   return (
     <div className={`aspect-[3/4] w-full overflow-hidden rounded-lg ${className}`}>
-      {/* <Image
-        src={imgSrc}
-        alt={`Couverture de ${title}`}
-        fill
-        className="object-cover"
-        priority
-        // onError={() => setImgSrc("/images/placeholder-book-cover.png")}
-      /> */}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-// components/ui/Notification.tsx
 import React from "react";
 
 interface NotificationProps {

@@ -19,7 +19,7 @@ const NotificationComponent = ({ userId }: { userId: number }) => {
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
-    // Initial fetch of existing notifications
+
     const fetchExistingNotifications = async () => {
       try {
         const response = await fetch(`http://localhost:5000/notifications/${userId}`);
@@ -33,7 +33,7 @@ const NotificationComponent = ({ userId }: { userId: number }) => {
 
     fetchExistingNotifications();
 
-    // Set up SSE connection
+
     const eventSource = new EventSource(`http://localhost:5000/notifications/stream/${userId}`);
 
     eventSource.addEventListener('notification', (event) => {
@@ -56,7 +56,7 @@ const NotificationComponent = ({ userId }: { userId: number }) => {
       await fetch(`http://localhost:5000/notifications/${notificationId}/mark-read`, {
         method: 'POST'
       });
-      setNotifications(current => 
+      setNotifications(current =>
         current.filter(n => n.id !== notificationId)
       );
     } catch (error) {

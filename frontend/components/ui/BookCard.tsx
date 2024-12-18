@@ -1,4 +1,3 @@
-// components/ui/BookCard.tsx
 import React from "react";
 
 interface BookCardProps {

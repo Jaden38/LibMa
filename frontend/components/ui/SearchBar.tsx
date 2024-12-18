@@ -1,4 +1,3 @@
-// components/ui/SearchBar.tsx
 import React from "react";
 import Input from "./Input";
 
