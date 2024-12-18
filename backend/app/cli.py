@@ -80,6 +80,13 @@ def init_db():
             except Error as e:
                 print(f"Error populating data: {str(e)}")
                 return
+            
+            """Update book cover images from PNG files in the covers directory"""
+            try:
+                process_book_covers()
+            except Exception as e:
+                print(f"Error in update_covers: {str(e)}")
+                return
 
             print("Database initialization completed successfully!")
 
@@ -199,12 +206,3 @@ def check_connections():
         print(f"Error: {str(e)}")
         
 app.cli.add_command(generate_models, name='generate-models')
-
-@app.cli.command()
-@with_appcontext
-def update_covers():
-    """Update book cover images from PNG files in the covers directory"""
-    try:
-        process_book_covers()
-    except Exception as e:
-        print(f"Error in update_covers: {str(e)}")
