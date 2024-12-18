@@ -1,4 +1,3 @@
-// UserContext.tsx
 import React, { createContext, ReactNode, useState, useEffect } from 'react';
 import { AuthResponse, IUser, AuthTokens } from '@/types';
 
@@ -21,7 +20,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
   const [tokens, setTokens] = useState<AuthTokens | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  // Charger les données depuis le localStorage au montage
+
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const storedTokens = localStorage.getItem('tokens');
@@ -32,17 +31,17 @@ export const UserProvider = ({ children }: UserProviderProps) => {
     }
   }, []);
 
-  // Fonction de login
+
   const login = (data: AuthResponse) => {
     setUser(data.user);
     setTokens(data.tokens);
     setIsLoggedIn(true);
-    // Stocker dans le localStorage pour persistance
+
     localStorage.setItem('user', JSON.stringify(data.user));
     localStorage.setItem('tokens', JSON.stringify(data.tokens));
   };
 
-  // Fonction de logout
+
   const logout = () => {
     setUser(null);
     setTokens(null);
