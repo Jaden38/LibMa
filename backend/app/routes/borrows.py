@@ -18,7 +18,7 @@ def format_book_data(sample):
         "category": book.category,
         "release_date": book.release_date.isoformat() if book.release_date else None,
         "description": book.book_description,
-        "image_url": book.image_url
+        "cover_image": book.cover_image
     }
 def format_sample_data(sample):
     return {
@@ -79,7 +79,6 @@ def get_borrow(id):
 def create_borrow():
     try:
         data = request.get_json()
-        # Validate required fields
         required_fields = ["user_id", "sample_id", "begin_date", "end_date"]
         for field in required_fields:
             if field not in data:
@@ -93,7 +92,6 @@ def create_borrow():
                     400,
                 )
 
-        # Validate sample availability
         sample = Sample.query.get_or_404(data["sample_id"])
         existing_active_borrows = Borrow.query.filter_by(
             sample_id=data["sample_id"], borrow_status="en cours"

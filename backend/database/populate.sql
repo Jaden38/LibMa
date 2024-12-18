@@ -1,5 +1,7 @@
 INSERT INTO users (lastname, firstname, mail, user_password, user_role, user_status) VALUES
-('Dubois', 'Jean', 'jean.dubois@email.com', 'hashed_password_1', 'administrateur', 'actif'),
+('Admin', 'Admin', 'admin@gmail.com', 'scrypt:32768:8:1$n3dRFnd6XULMZt0n$c345f586950016730f26c804548e12776483765f55519925e423e16b021bb89862f90a24154a308f0758a3e3e843ae8a1959c4e5ad84d1cd016368493b54566f', 'administrateur', 'actif'),
+('Bibliothecaire', 'Bibliothecaire', 'bibliothecaire@gmail.com', 'scrypt:32768:8:1$iOee5CH47C68i5yJ$95be8d3182cd7bab66bb22dddd68041a07077c31fa9f3b305d9329bb5ed6372e81455682f5a6e300e5c6b72d3cc16a50a277269e45d79738ec4381ab4f2734c3', 'bibliothécaire', 'actif'),
+('Dubois', 'Jean', 'jean.dubois@email.com', 'hashed_password_1', 'bibliothécaire', 'actif'),
 ('Martin', 'Sophie', 'sophie.martin@email.com', 'hashed_password_2', 'bibliothécaire', 'actif'),
 ('Bernard', 'Michel', 'michel.bernard@email.com', 'hashed_password_3', 'bibliothécaire', 'actif'),
 ('Petit', 'Marie', 'marie.petit@email.com', 'hashed_password_4', 'membre', 'actif'),

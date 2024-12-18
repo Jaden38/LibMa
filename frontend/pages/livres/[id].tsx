@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { LoanHistoryDialog } from "@/components/ui/LoanHistoryDialog";
 import { useUser } from "@/hooks/UseUser";
-import { IBook, IBorrow, ISample } from '@/types';
+import { IBook, IBorrow, ISample } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 import StatusBadge from "@/components/ui/StatusBadge";
 
@@ -29,8 +29,11 @@ export default function BookDetails() {
     setborrowsLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/exemplaires/${exemplaire.id}/emprunts`);
-      if (!response.ok) throw new Error("Erreur lors de la récupération des emprunts");
+      const response = await fetch(
+        `http://localhost:5000/exemplaires/${exemplaire.id}/emprunts`
+      );
+      if (!response.ok)
+        throw new Error("Erreur lors de la récupération des emprunts");
       const data = await response.json();
       setBorrows(data);
     } catch (error) {
@@ -75,7 +78,8 @@ export default function BookDetails() {
       <main
         className="flex items-center justify-center h-screen text-white"
         style={{
-          background: "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)"
+          background:
+            "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)",
         }}
       >
         <p className="text-lg font-bold">Chargement...</p>
@@ -88,7 +92,8 @@ export default function BookDetails() {
       <main
         className="flex flex-col items-center justify-center h-screen text-[#00f1a1]"
         style={{
-          background: "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)"
+          background:
+            "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)",
         }}
       >
         <p className="text-xl font-semibold">{error}</p>
@@ -109,8 +114,8 @@ export default function BookDetails() {
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { duration: 0.7, ease: "easeOut" }
-    }
+      transition: { duration: 0.7, ease: "easeOut" },
+    },
   };
 
   const samplesContainerVariants = {
@@ -118,15 +123,15 @@ export default function BookDetails() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.07
-      }
-    }
+        staggerChildren: 0.07,
+      },
+    },
   };
 
   const sampleItemVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
     visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4 } },
-    hover: { scale: 1.03, boxShadow: "0 0 10px #00f1a1" }
+    hover: { scale: 1.03, boxShadow: "0 0 10px #00f1a1" },
   };
 
   // Statut => couleur unique adaptée au thème
@@ -139,7 +144,8 @@ export default function BookDetails() {
     <div
       className="min-h-screen flex flex-col"
       style={{
-        background: "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)"
+        background:
+          "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)",
       }}
     >
       {/* Header */}
@@ -181,7 +187,7 @@ export default function BookDetails() {
               transition={{ duration: 0.7, ease: "easeOut" }}
             >
               <BookCover
-                imageUrl={book?.image_url || ""}
+                cover={book?.cover_image || ""}
                 title={book?.title || ""}
                 className="w-full h-[300px] object-cover rounded-md"
               />
@@ -197,7 +203,8 @@ export default function BookDetails() {
             >
               {book?.author && (
                 <p>
-                  <strong className="text-gray-200">Auteur :</strong> {book.author}
+                  <strong className="text-gray-200">Auteur :</strong>{" "}
+                  {book.author}
                 </p>
               )}
               {book?.genre && (
