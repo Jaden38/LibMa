@@ -9,7 +9,8 @@ export interface IBorrow {
     firstname: string;
   };
   return_date: string | null;
-  sample: IBook;
+  sample: ISample;
+  approved_by: number;
 }
 
 export interface IBook {
@@ -27,7 +28,10 @@ export interface ISample {
   id: number;
   unique_code: string;
   status: "disponible" | "emprunté" | "réservé" | "indisponible";
-  localization: string | null;
+  procurement_date: string | null;
+  localization: string;
+  book_id : number;
+  book: IBook;
 }
 
 export interface IUser {
