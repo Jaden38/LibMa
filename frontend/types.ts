@@ -21,7 +21,7 @@ export interface IBook {
   category: string;
   release_date: string;
   description: string;
-  image_url: string;
+  cover_image: string | null;
 }
 
 export interface ISample {
