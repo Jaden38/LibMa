@@ -257,13 +257,19 @@ export default function Home() {
             <AnimatePresence mode="sync">
               <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {filteredBooks.map((Book) => (
-                  <motion.div
-                    key={Book.id}
-                    variants={itemVariants}
-
-                    className="bg-[#1a1a1a] p-5 rounded-xl shadow-md flex flex-col justify-between
-                               hover:shadow-lg transition-shadow relative"
-                  >
+                   <motion.div
+                   key={Book.id}
+                   variants={itemVariants}
+                   whileHover={{ 
+                     scale: 1.03,
+                     transition: { duration: 0.2 }
+                   }}
+                   whileTap={{ scale: 0.97 }}
+                   onClick={() => handleViewDetails(Book.id)}
+                   className="bg-[#1a1a1a] p-5 rounded-xl shadow-md flex flex-col justify-between
+                              hover:shadow-xl hover:shadow-[#00f1a133] transition-all duration-300 relative
+                              cursor-pointer"
+                 >
                     <div>
                       <h3 className="text-lg font-semibold truncate text-white mb-2">
                         {Book.title}
