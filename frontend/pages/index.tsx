@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useUser } from "@/hooks/UseUser";
 import { DoorOpen, UserPlus, User, Book, BookCopy } from "lucide-react";
 import { IBook } from "@/types";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const { user, isLoggedIn, logout } = useUser();
@@ -13,7 +14,7 @@ export default function Home() {
   const [filteredBooks, setFilteredBooks] = useState<IBook[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tagColors, setTagColors] = useState<{ [key: string]: string }>({});
+
   const [search, setSearch] = useState("");
   const [filterGenre, setFilterGenre] = useState<string | null>(null);
   const [filterCategorie, setFilterCategorie] = useState<string | null>(null);
@@ -31,7 +32,6 @@ export default function Home() {
         if (Array.isArray(data)) {
           setBooks(data);
           setFilteredBooks(data);
-          generateTagColors(data);
         } else {
           throw new Error("Data received is not an array");
         }
@@ -42,31 +42,6 @@ export default function Home() {
       })
       .finally(() => setLoading(false));
   }, []);
-
-  const generateTagColors = (data: IBook[]) => {
-    const colors = [
-      "bg-pink-200 text-pink-800 border-pink-400",
-      "bg-blue-200 text-blue-800 border-blue-400",
-      "bg-green-200 text-green-800 border-green-400",
-      "bg-yellow-200 text-yellow-800 border-yellow-400",
-      "bg-purple-200 text-purple-800 border-purple-400",
-      "bg-orange-200 text-orange-800 border-orange-400",
-      "bg-teal-200 text-teal-800 border-teal-400",
-    ];
-    const usedColors: { [key: string]: string } = {};
-    let colorIndex = 0;
-
-    data.forEach((Book) => {
-      [Book.genre, Book.category].forEach((tag) => {
-        if (tag && !usedColors[tag]) {
-          usedColors[tag] = colors[colorIndex % colors.length];
-          colorIndex++;
-        }
-      });
-    });
-
-    setTagColors(usedColors);
-  };
 
   const filterBooks = () => {
     let filtered = Books;
@@ -100,7 +75,12 @@ export default function Home() {
 
   if (loading) {
     return (
-      <main className="flex items-center justify-center h-screen bg-zinc-900 text-zinc-100">
+      <main
+        className="flex items-center justify-center h-screen text-white"
+        style={{
+          background: "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)"
+        }}
+      >
         <p className="text-2xl font-semibold">Chargement...</p>
       </main>
     );
@@ -108,90 +88,137 @@ export default function Home() {
 
   if (error) {
     return (
-      <main className="flex items-center justify-center h-screen bg-zinc-900 text-red-400">
+      <main
+        className="flex items-center justify-center h-screen text-[#00f1a1]"
+        style={{
+          background: "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)"
+        }}
+      >
         <p className="text-xl font-semibold">Erreur: {error}</p>
       </main>
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.7,
+        ease: "easeOut",
+        staggerChildren: 0.07,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.4 }
+    },
+    exit: { opacity: 0, y: 20, transition: { duration: 0.3 } },
+  };
+
   return (
-    <main className="container mx-auto p-6 bg-zinc-900 text-zinc-100 rounded-lg shadow-lg">
-      <div className="flex justify-between items-center mb-12">
-        <h1 className="text-3xl font-extrabold text-zinc-100">LibMa</h1>
-        <div className="flex space-x-4">
-          {
-            isLoggedIn && (
-              <Link href="/profile">
-                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
-                  <User /> Mon Profil
-                </Button>
-              </Link>
-            )
-          }
-          {
-            user?.role === "bibliothecaire" && (
-              <Link href="/emprunts">
-                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
-                  <BookCopy /> Voir les demandes d'emprunts
-                </Button>
-              </Link>
-            )
-          }
-          {
-            user?.role === "administrateur" && (
-              <Link href="/gestion">
-                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
-                  <User /> Gérer les libraires
-                </Button>
-              </Link>
-            )
-          }
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        background: "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)"
+      }}
+    >
+      {/* Header */}
+      <header className="flex items-center justify-between p-6">
+        <h1 className="text-2xl font-bold text-white tracking-wide">
+          LibMa
+        </h1>
+        <div className="flex gap-4 items-center">
+          {isLoggedIn && (
+            <Link href="/profile">
+              <Button className="flex items-center gap-2 bg-[#1a1a1a] text-white px-4 py-2 rounded-lg hover:bg-[#272727] transition-all focus:outline-none focus:ring-2 focus:ring-[#00f1a1]">
+                <User /> Profil
+              </Button>
+            </Link>
+          )}
+          {user?.role === "bibliothecaire" && (
+            <Link href="/emprunts">
+              <Button className="flex items-center gap-2 bg-[#1a1a1a] text-white px-4 py-2 rounded-lg hover:bg-[#272727] transition-all focus:outline-none focus:ring-2 focus:ring-[#00f1a1]">
+                <BookCopy /> Emprunts
+              </Button>
+            </Link>
+          )}
+          {user?.role === "administrateur" && (
+            <Link href="/gestion">
+              <Button className="flex items-center gap-2 bg-[#1a1a1a] text-white px-4 py-2 rounded-lg hover:bg-[#272727] transition-all focus:outline-none focus:ring-2 focus:ring-[#00f1a1]">
+                <User /> Libraires
+              </Button>
+            </Link>
+          )}
           <Link href="/auth">
-            {
-              !isLoggedIn && (
-                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all">
-                  <UserPlus /> Authentification
-                </Button>
-              )
-              ||
-              isLoggedIn && (
-                <Button className="flex items-center gap-2 bg-zinc-800 text-zinc-100 px-4 py-2 rounded-lg hover:bg-zinc-700 transition-all"
-                  onClick={(() => logout())}>
-                  <DoorOpen /> Se déconnecter
-                </Button>
-              )
-            }
+            {!isLoggedIn ? (
+              <Button className="flex items-center gap-2 bg-[#00f1a1] text-black px-4 py-2 rounded-lg hover:bg-[#05e799] transition-all focus:outline-none focus:ring-2 focus:ring-[#00f1a1]">
+                <UserPlus /> Auth
+              </Button>
+            ) : (
+              <Button
+                className="flex items-center gap-2 bg-[#1a1a1a] text-white px-4 py-2 rounded-lg hover:bg-[#272727] transition-all focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+                onClick={() => logout()}
+              >
+                <DoorOpen /> Déconnexion
+              </Button>
+            )}
           </Link>
         </div>
-      </div>
+      </header>
 
-      <div className="mb-8 flex flex-wrap justify-between gap-4 items-center">
-        <div className="flex flex-wrap gap-4 items-center">
-          <input
+      {/* Hero Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="flex-grow flex flex-col items-center justify-center text-center pt-24 pb-16 px-4"
+      >
+        <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 uppercase tracking-wider">
+          Découvrez notre Collection
+        </h2>
+        <p className="text-lg text-gray-300 max-w-md mb-8">
+          Parcourez, filtrez et trouvez le livre parfait. Réservez d'un clic.
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xl justify-center">
+          <motion.input
+            whileHover={{ scale: 1.03, boxShadow: "0 0 8px #00f1a1" }}
+            whileFocus={{ scale: 1.03, boxShadow: "0 0 8px #00f1a1" }}
             type="text"
             placeholder="Rechercher un livre..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="flex-1 px-4 py-3 bg-[#1a1a1a] border border-[#2c2c2c] text-white rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00f1a1] transition-transform"
           />
-          <select
+          <motion.select
+            whileHover={{ scale: 1.03, boxShadow: "0 0 8px #00f1a1" }}
+            whileFocus={{ scale: 1.03, boxShadow: "0 0 8px #00f1a1" }}
             value={filterGenre || ""}
             onChange={(e) => setFilterGenre(e.target.value || null)}
-            className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-3 bg-[#1a1a1a] border border-[#2c2c2c] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f1a1] transition-transform"
           >
-            <option value="">Tous les genres</option>
+            <option value="">Genre</option>
             {Array.from(new Set(Books.map((Book) => Book.genre).filter(Boolean))).map((genre) => (
               <option key={genre} value={genre}>
                 {genre}
               </option>
             ))}
-          </select>
-          <select
+          </motion.select>
+          <motion.select
+            whileHover={{ scale: 1.03, boxShadow: "0 0 8px #00f1a1" }}
+            whileFocus={{ scale: 1.03, boxShadow: "0 0 8px #00f1a1" }}
             value={filterCategorie || ""}
             onChange={(e) => setFilterCategorie(e.target.value || null)}
-            className="px-4 py-2 bg-zinc-700 border border-zinc-600 text-zinc-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="px-4 py-3 bg-[#1a1a1a] border border-[#2c2c2c] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f1a1] transition-transform"
           >
-            <option value="">Toutes les catégories</option>
+            <option value="">Catégorie</option>
             {Array.from(new Set(Books.map((Book) => Book.category).filter(Boolean))).map(
               (categorie) => (
                 <option key={categorie} value={categorie}>
@@ -199,85 +226,96 @@ export default function Home() {
                 </option>
               )
             )}
-          </select>
+          </motion.select>
         </div>
+      </motion.section>
 
-        {
-          user?.role === "administrateur" || user?.role === "bibliothecaire" && (
-            <Link href="/add-book">
-              <Button className="inline-flex items-center gap-2 bg-zinc-800 text-zinc-100 px-6 py-3 rounded-lg hover:bg-zinc-700 transition-all">
-                <Book /> Ajouter un livre
-              </Button>
-            </Link>
-          )
-        }
-      </div>
+      {/* Catalogue */}
+      <motion.section
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="max-w-[1400px] w-full mx-auto p-6 bg-[#121212] text-white rounded-lg shadow-[0_0_30px_rgba(0,0,0,0.7)] mb-10"
+      >
+        <h2 className="text-2xl font-bold text-center mb-6 text-white uppercase tracking-wider">
+          Catalogue des Livres
+        </h2>
+        {filteredBooks.length === 0 ? (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center text-gray-300"
+          >
+            Aucun livre ne correspond à vos critères.
+          </motion.p>
+        ) : (
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <AnimatePresence mode="sync">
+              <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {filteredBooks.map((Book) => (
+                  <motion.div
+                    key={Book.id}
+                    variants={itemVariants}
 
-      <section className="bg-zinc-800 p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-6 text-zinc-200">Catalogue des livres</h2>
-
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filteredBooks.map((Book) => (
-            <div
-              key={Book.id}
-              className="bg-zinc-700 p-5 rounded-xl shadow-lg flex flex-col justify-between hover:shadow-md"
-            >
-              <div>
-                <h3 className="text-lg font-semibold truncate text-zinc-100 mb-2">
-                  {Book.title}
-                </h3>
-                <p className="text-sm text-zinc-400 mb-3">{Book.author}</p>
-
-                <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
-                  {Book.genre && (
-                    <span
-                      className={`px-2 py-1 rounded-md border ${tagColors[Book.genre] || "bg-gray-200 text-gray-800 border-gray-400"
-                        }`}
-                    >
-                      {Book.genre}
-                    </span>
-                  )}
-                  {Book.category && (
-                    <span
-                      className={`px-2 py-1 rounded-md border ${tagColors[Book.category] || "bg-gray-200 text-gray-800 border-gray-400"
-                        }`}
-                    >
-                      {Book.category}
-                    </span>
-                  )}
-                  {Book.release_date && (
-                    <span className="text-zinc-400">
-                      Publié le {new Date(Book.release_date).toLocaleDateString("fr-FR")}
-                    </span>
-                  )}
-                </div>
-
-                {Book.description && (
-                  <p className="text-sm text-zinc-300 line-clamp-3">{Book.description}</p>
-                )}
+                    className="bg-[#1a1a1a] p-5 rounded-xl shadow-md flex flex-col justify-between
+                               hover:shadow-lg transition-shadow relative"
+                  >
+                    <div>
+                      <h3 className="text-lg font-semibold truncate text-white mb-2">
+                        {Book.title}
+                      </h3>
+                      <p className="text-sm text-gray-400 mb-3">{Book.author}</p>
+                      <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
+                        {Book.genre && (
+                          <span
+                            className="px-2 py-1 rounded-md border border-[#00f1a1] text-[#00f1a1] bg-transparent"
+                          >
+                            {Book.genre}
+                          </span>
+                        )}
+                        {Book.category && (
+                          <span
+                            className="px-2 py-1 rounded-md border border-[#00f1a1] text-[#00f1a1] bg-transparent"
+                          >
+                            {Book.category}
+                          </span>
+                        )}
+                        {Book.release_date && (
+                          <span className="text-gray-400">
+                            Publié le {new Date(Book.release_date).toLocaleDateString("fr-FR")}
+                          </span>
+                        )}
+                      </div>
+                      {Book.description && (
+                        <p className="text-sm text-gray-300 line-clamp-3">{Book.description}</p>
+                      )}
+                    </div>
+                    <div className="mt-4 flex justify-center gap-4">
+                      <button
+                        onClick={() => handleViewDetails(Book.id)}
+                        className="px-4 py-1.5 rounded-md border border-[#00f1a1] text-[#00f1a1] hover:bg-[#00f1a1] hover:text-black transition-all focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+                      >
+                        Détails
+                      </button>
+                      {isLoggedIn && (
+                        <button
+                          className="px-4 py-1.5 rounded-md border border-[#00f1a1] text-[#00f1a1] hover:bg-[#00f1a1] hover:text-black transition-all focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+                        >
+                          Réserver
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
               </div>
-
-              <div className="mt-4 flex justify-center gap-4">
-                <button
-                  onClick={() => handleViewDetails(Book.id)}
-                  className="px-4 my-0.5 rounded-md border border-indigo-400 text-indigo-400 hover:bg-indigo-600 hover:text-zinc-100 transition-all"
-                >
-                  Détails
-                </button>
-                {
-                  isLoggedIn && (
-                    <button
-                      className="px-4 my-0.5 rounded-md border border-lime-300 text-lime-300 hover:bg-lime-600 hover:text-zinc-100 transition-all"
-                    >
-                      Réserver
-                    </button>
-                  )
-                }
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    </main>
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </motion.section>
+    </div>
   );
 }
