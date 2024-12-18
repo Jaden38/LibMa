@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 from sqlalchemy import text
 from scripts.generate_models import generate_models
-
+from scripts.cover_processor import process_book_covers
 
 def execute_sql_file(cursor, filename):
     """Execute SQL commands from a file"""
@@ -199,3 +199,12 @@ def check_connections():
         print(f"Error: {str(e)}")
         
 app.cli.add_command(generate_models, name='generate-models')
+
+@app.cli.command()
+@with_appcontext
+def update_covers():
+    """Update book cover images from PNG files in the covers directory"""
+    try:
+        process_book_covers()
+    except Exception as e:
+        print(f"Error in update_covers: {str(e)}")

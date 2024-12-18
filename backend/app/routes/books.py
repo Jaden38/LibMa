@@ -20,6 +20,7 @@ def get_books():
                 "category": book.category,
                 "release_date": book.release_date.isoformat() if book.release_date else None,
                 "description": book.book_description,
+                "cover_image": book.cover_image
             }
             for book in books
         ]
@@ -40,7 +41,7 @@ def get_book(id):
             "category": livre.category,
             "release_date": livre.release_date.isoformat() if livre.release_date else None,
             "description": livre.book_description,
-            "image_url": livre.image_url,
+            "cover_image": livre.cover_image,
         }
         return jsonify(result)
     except Exception as e:

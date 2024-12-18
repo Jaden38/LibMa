@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS books (
     book_description TEXT,
     release_date DATE,
     added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    image_url VARCHAR(255),
+    cover_image MEDIUMTEXT,
     INDEX index_books_title (title),
     INDEX index_books_author (author)
 );
