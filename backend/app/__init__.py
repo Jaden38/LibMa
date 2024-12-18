@@ -9,7 +9,7 @@ import os
 from apscheduler.schedulers.background import BackgroundScheduler
 import atexit
 import logging
-
+from app.utils.db import Database
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -36,7 +36,10 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-db = SQLAlchemy(app)
+db_instance = Database()
+db_instance.init_app(app)
+
+db = db_instance.get_db()
 
 limiter = Limiter(
     app=app,
