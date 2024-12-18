@@ -79,7 +79,6 @@ def get_borrow(id):
 def create_borrow():
     try:
         data = request.get_json()
-        print("Here", data)
         # Validate required fields
         required_fields = ["user_id", "sample_id", "begin_date", "end_date"]
         for field in required_fields:
