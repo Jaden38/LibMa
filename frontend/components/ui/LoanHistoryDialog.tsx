@@ -8,6 +8,8 @@ import {
 import { Badge } from "@/components/ui/Badge";
 import { ScrollArea } from "@/components/ui/ScrollArea";
 import { IBorrow, ISample } from "@/types";
+import { motion, AnimatePresence } from "framer-motion";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 interface LoanHistoryDialogProps {
   open: boolean;
@@ -26,72 +28,99 @@ export function LoanHistoryDialog({
 }: LoanHistoryDialogProps) {
   if (!sample) return null;
 
-  const getStatutStyle = (status: ISample['status']) => {
-    const styles = {
-      disponible: "bg-green-200 text-green-800 border-green-400",
-      emprunté: "bg-yellow-200 text-yellow-800 border-yellow-400",
-      réservé: "bg-blue-200 text-blue-800 border-blue-400",
-      indisponible: "bg-gray-200 text-gray-800 border-gray-400",
-    } as const;
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
 
-    return styles[status] ?? "bg-zinc-200 text-zinc-800 border-zinc-400";
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.3 }
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] bg-zinc-800 text-zinc-100 rounded-lg shadow-lg">
-        <DialogHeader>
-          <DialogTitle className="flex justify-normal gap-2 items-center text-zinc-100">
+      <DialogContent className="max-w-2xl max-h-[80vh] bg-[#1a1a1a] border border-[#2c2c2c] text-white rounded-lg shadow-xl">
+        <DialogHeader className="border-b border-[#2c2c2c] pb-4">
+          <DialogTitle className="flex items-center gap-3 text-xl font-semibold">
             <span>Historique des emprunts - {sample.unique_code}</span>
-            <Badge className={`px-2 py-1 rounded ${getStatutStyle(sample.status)}`}>
-              {sample.status}
-            </Badge>
+            <StatusBadge status={sample.status} />
           </DialogTitle>
         </DialogHeader>
 
         <ScrollArea className="h-[500px] w-full pr-4">
-          {loading ? (
-            <div className="flex items-center justify-center h-24 text-zinc-400">
-              <p>Chargement de l'historique...</p>
-            </div>
-          ) : borrows.length === 0 ? (
-            <div className="flex items-center justify-center h-24 text-zinc-400">
-              Aucun emprunt enregistré pour cet exemplaire
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {borrows.map((borrow) => (
-                <div key={borrow.id} className="border border-zinc-600 bg-zinc-700 rounded-lg p-4 space-y-2">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <p className="font-medium text-zinc-100">{borrow.user.firstname} {borrow.user.lastname}</p>
-                      <p className="text-sm text-zinc-400">ID Emprunt: {borrow.id}</p>
-                    </div>
-                    <Badge className={`px-2 py-1 rounded ${getStatutStyle(borrow.status as ISample['status'])}`}>
-                      {borrow.status}
-                    </Badge>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-zinc-400">Date de début</p>
-                      <p className="text-zinc-200">{new Date(borrow.begin_date).toLocaleDateString("fr-FR")}</p>
-                    </div>
-                    <div>
-                      <p className="text-zinc-400">Date de fin prévue</p>
-                      <p className="text-zinc-200">{borrow.end_date ? new Date(borrow.end_date).toLocaleDateString("fr-FR") : '—'}</p>
-                    </div>
-                    {borrow.return_date && (
-                      <div className="col-span-2">
-                        <p className="text-zinc-400">Retourné le</p>
-                        <p className="text-zinc-200">{new Date(borrow.return_date).toLocaleDateString("fr-FR")}</p>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {loading ? (
+              <div className="flex items-center justify-center h-24">
+                <p className="text-[#00f1a1] animate-pulse">Chargement de l'historique...</p>
+              </div>
+            ) : borrows.length === 0 ? (
+              <div className="flex items-center justify-center h-24 text-gray-400">
+                Aucun emprunt enregistré pour cet exemplaire
+              </div>
+            ) : (
+              <AnimatePresence>
+                <div className="space-y-4">
+                  {borrows.map((borrow) => (
+                    <motion.div
+                      key={borrow.id}
+                      variants={itemVariants}
+                      initial="hidden"
+                      animate="visible"
+                      className="bg-[#121212] border border-[#2c2c2c] rounded-lg p-4 space-y-3 hover:border-[#00f1a1] transition-colors duration-200"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                          <h3 className="font-medium text-white">
+                            {borrow.user.firstname} {borrow.user.lastname}
+                          </h3>
+                          <p className="text-sm text-gray-400">
+                            ID Emprunt: {borrow.id}
+                          </p>
+                        </div>
+                        <StatusBadge status={borrow.borrow_status} />
                       </div>
-                    )}
-                  </div>
+
+                      <div className="grid grid-cols-2 gap-4 text-sm pt-2 border-t border-[#2c2c2c]">
+                        <div>
+                          <p className="text-gray-400">Date de début</p>
+                          <p className="text-white mt-1">
+                            {new Date(borrow.begin_date).toLocaleDateString("fr-FR")}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-400">Date de fin prévue</p>
+                          <p className="text-white mt-1">
+                            {borrow.end_date ? new Date(borrow.end_date).toLocaleDateString("fr-FR") : '—'}
+                          </p>
+                        </div>
+                        {borrow.return_date && (
+                          <div className="col-span-2 pt-2 border-t border-[#2c2c2c]">
+                            <p className="text-gray-400">Retourné le</p>
+                            <p className="text-white mt-1">
+                              {new Date(borrow.return_date).toLocaleDateString("fr-FR")}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+              </AnimatePresence>
+            )}
+          </motion.div>
         </ScrollArea>
       </DialogContent>
     </Dialog>

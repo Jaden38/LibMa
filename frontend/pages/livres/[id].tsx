@@ -7,6 +7,8 @@ import { useRouter } from "next/router";
 import { LoanHistoryDialog } from "@/components/ui/LoanHistoryDialog";
 import { useUser } from "@/hooks/UseUser";
 import { IBook, IBorrow, ISample } from '@/types';
+import { motion, AnimatePresence } from "framer-motion";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 export default function BookDetails() {
   const { user, isLoggedIn } = useUser();
@@ -70,7 +72,12 @@ export default function BookDetails() {
 
   if (loading) {
     return (
-      <main className="flex items-center justify-center h-screen bg-zinc-900 text-zinc-100">
+      <main
+        className="flex items-center justify-center h-screen text-white"
+        style={{
+          background: "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)"
+        }}
+      >
         <p className="text-lg font-bold">Chargement...</p>
       </main>
     );
@@ -78,125 +85,199 @@ export default function BookDetails() {
 
   if (error) {
     return (
-      <main className="flex items-center justify-center h-screen bg-zinc-900 text-red-400">
+      <main
+        className="flex flex-col items-center justify-center h-screen text-[#00f1a1]"
+        style={{
+          background: "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)"
+        }}
+      >
         <p className="text-xl font-semibold">{error}</p>
-        <Button onClick={() => router.back()} className="mt-4">
+        <Button
+          onClick={() => router.back()}
+          className="mt-4 bg-[#1a1a1a] text-white px-4 py-2 rounded hover:bg-[#272727] transition focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+        >
           Retour
         </Button>
       </main>
     );
   }
 
+  // Variantes d'animation
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.7, ease: "easeOut" }
+    }
+  };
+
+  const samplesContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.07
+      }
+    }
+  };
+
+  const sampleItemVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4 } },
+    hover: { scale: 1.03, boxShadow: "0 0 10px #00f1a1" }
+  };
+
+  // Statut => couleur unique adaptée au thème
+  const getStatusBadgeClasses = (status: string) => {
+    let color = "#00f1a1"; // accent par défaut
+    return `border border-[${color}] text-[${color}]`;
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-zinc-900 text-zinc-100 overflow-hidden">
-
-      <div className="flex items-center justify-between px-6 pt-5">
-
-        <h1 className="text-4xl font-bold truncate text-zinc-100">
-          {book?.title}
-        </h1>
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-          className="px-4 py-2 bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        background: "radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 80%)"
+      }}
+    >
+      {/* Header */}
+      <header className="flex items-center justify-between p-6">
+        <motion.h1
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+          className="text-4xl font-bold text-white truncate"
         >
-          Retour
-        </Button>
-      </div>
+          {book?.title}
+        </motion.h1>
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
+        >
+          <Button
+            variant="outline"
+            onClick={() => router.back()}
+            className="px-4 py-2 bg-[#1a1a1a] text-white hover:bg-[#272727] transition-all focus:outline-none focus:ring-2 focus:ring-[#00f1a1]"
+          >
+            Retour
+          </Button>
+        </motion.div>
+      </header>
 
-
-      <div className="flex-grow p-6 overflow-auto">
+      <motion.div
+        className="flex-grow p-6 overflow-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-          <Card className="bg-zinc-800 p-4">
-            <BookCover
-              imageUrl={book?.image_url || ""}
-              title={book?.title || ""}
-              className="w-full h-[300px] object-cover rounded-md"
-            />
+          <Card className="bg-[#1a1a1a] p-4 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+            >
+              <BookCover
+                imageUrl={book?.image_url || ""}
+                title={book?.title || ""}
+                className="w-full h-[300px] object-cover rounded-md"
+              />
+            </motion.div>
           </Card>
 
-
-          <Card className="lg:col-span-2 bg-zinc-800 p-6">
-            <div className="space-y-4">
-              <p className="text-zinc-400 px-2 py-1">
-                <strong className="text-zinc-200">Auteur:</strong>{" "}
-                {book?.author}
-              </p>
+          <Card className="lg:col-span-2 bg-[#1a1a1a] p-6">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="space-y-4 text-white"
+            >
+              {book?.author && (
+                <p>
+                  <strong className="text-gray-200">Auteur :</strong> {book.author}
+                </p>
+              )}
               {book?.genre && (
-                <p className="text-zinc-400 px-2 py-1">
-                  <strong className="text-zinc-200">Genre:</strong>{" "}
-                  <Badge className="bg-blue-200 text-blue-800 border border-blue-400 px-2 py-1 rounded">
+                <p>
+                  <strong className="text-gray-200">Genre :</strong>{" "}
+                  <Badge className="border border-[#00f1a1] text-[#00f1a1] px-2 py-1 rounded">
                     {book.genre}
                   </Badge>
                 </p>
               )}
               {book?.category && (
-                <p className="text-zinc-400 px-2 py-1">
-                  <strong className="text-zinc-200">Catégorie:</strong>{" "}
-                  <Badge className="bg-purple-200 text-purple-800 border border-purple-400 px-2 py-1 rounded">
+                <p>
+                  <strong className="text-gray-200">Catégorie :</strong>{" "}
+                  <Badge className="border border-[#00f1a1] text-[#00f1a1] px-2 py-1 rounded">
                     {book.category}
                   </Badge>
                 </p>
               )}
               {book?.release_date && (
-                <p className="text-zinc-400 px-2 py-1">
-                  <strong className="text-zinc-200">Date de sortie:</strong>{" "}
+                <p>
+                  <strong className="text-gray-200">Date de sortie :</strong>{" "}
                   {new Date(book.release_date).toLocaleDateString()}
                 </p>
               )}
               {book?.description && (
-                <p className="text-zinc-400 px-2 py-1">
-                  <strong className="text-zinc-200">Description:</strong>{" "}
+                <p className="text-gray-300">
+                  <strong className="text-gray-200">Description :</strong>{" "}
                   {book.description}
                 </p>
               )}
-            </div>
+            </motion.div>
           </Card>
         </div>
 
-
         {isLoggedIn && (
-          <Card className="mt-6 bg-zinc-800 p-6">
-            <h2 className="text-xl font-semibold text-zinc-100 mb-4">
+          <motion.div
+            className="mt-6 bg-[#1a1a1a] p-6 rounded-lg"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+          >
+            <h2 className="text-xl font-semibold text-white mb-4 uppercase tracking-wide">
               Exemplaires
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {samples.map((sample) => (
-                <div
-                  key={sample.id}
-                  className="p-4 bg-zinc-700 border rounded-lg hover:shadow-md transition cursor-pointer"
-                  onClick={() => loadEmpruntHistory(sample)}
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="font-medium truncate text-zinc-100">
-                      {sample.unique_code}
-                    </span>
-                    <Badge
-                      className={`px-2 py-1 rounded ${sample.status === "disponible"
-                        ? "bg-green-200 text-green-800 border-green-400"
-                        : sample.status === "emprunté"
-                          ? "bg-yellow-200 text-yellow-800 border-yellow-400"
-                          : sample.status === "réservé"
-                            ? "bg-blue-200 text-blue-800 border-blue-400"
-                            : "bg-red-200 text-red-800 border-red-400"
-                        }`}
-                    >
-                      {sample.status}
-                    </Badge>
-                  </div>
-                  {sample.localization && (
-                    <p className="text-sm text-zinc-400 truncate">
-                      {sample.localization}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </Card>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              variants={samplesContainerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <AnimatePresence>
+                {samples.map((sample) => (
+                  <motion.div
+                    key={sample.id}
+                    variants={sampleItemVariants}
+                    whileHover="hover"
+                    className="p-4 bg-[#121212] border border-[#2c2c2c] rounded-lg hover:shadow-md transition cursor-pointer"
+                    onClick={() => loadEmpruntHistory(sample)}
+                    initial="hidden"
+                    animate="visible"
+                    exit={{ opacity: 0, y: 20 }}
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-medium truncate text-white">
+                        {sample.unique_code}
+                      </span>
+                      <StatusBadge status={sample.status} />
+                    </div>
+                    {sample.localization && (
+                      <p className="text-sm text-gray-400 truncate">
+                        {sample.localization}
+                      </p>
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
         )}
-      </div>
-
+      </motion.div>
 
       <LoanHistoryDialog
         open={dialogOpen}
