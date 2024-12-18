@@ -135,6 +135,7 @@ def update_borrow(id):
     try:
         borrow = Borrow.query.get_or_404(id)
         data = request.get_json()
+        sample = Sample.query.get(borrow.sample_id)
 
         if "begin_date" in data:
             borrow.begin_date = datetime.fromisoformat(data["begin_date"])
@@ -143,6 +144,9 @@ def update_borrow(id):
         if "status" in data:
             if data["status"] in ["en cours", "terminé", "en retard", "annulé"]:
                 borrow.borrow_status = data["status"]
+
+                if data["status"] == "annulé" and sample:
+                    sample.sample_status = "disponible"
             else:
                 return (
                     jsonify(
@@ -153,6 +157,8 @@ def update_borrow(id):
         if "return_date" in data and data["return_date"]:
             borrow.returned_at = datetime.fromisoformat(data["return_date"])
             borrow.borrow_status = "terminé"
+            if sample:
+                sample.sample_status = "disponible"
 
         db.session.commit()
         return jsonify(format_borrow_data(borrow))
